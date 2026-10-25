@@ -1,3 +1,0 @@
-public class NotificationQueryDialog : TextDialog
-{
-}
