@@ -1,0 +1,57 @@
+using System;
+using UnityEngine;
+
+public class ServerTime
+{
+    public enum Status
+    {
+        STATUS_OK = 0,
+        STATUS_NOK = 1
+    }
+
+    private const string TAG = "LOG - ServerTime, ";
+    private bool mPendingRequest;
+    private Status mStatus;
+    public event Action<int> StatusChanged;
+    public ServerTime()
+    {
+        mStatus = Status.STATUS_NOK;
+    }
+
+    public void Destroy()
+    {
+        this.StatusChanged = null;
+    }
+
+    public Status GetStatus()
+    {
+        return mStatus;
+    }
+
+    public void RefreshServerTime()
+    {
+        if (!mPendingRequest)
+        {
+            mPendingRequest = true;
+            mStatus = Status.STATUS_NOK;
+            if (Application.internetReachability == NetworkReachability.NotReachable)
+            {
+                ServerTimeErrorCallback(0, "No internet connection");
+            }
+        }
+    }
+
+    private void ServerTimeSuccessCallback(ulong currentTime)
+    {
+        int obj = (int)currentTime;
+        mPendingRequest = false;
+        mStatus = Status.STATUS_OK;
+        this.StatusChanged?.Invoke(obj);
+    }
+
+    private void ServerTimeErrorCallback(int errorCode, string message)
+    {
+        mPendingRequest = false;
+        mStatus = Status.STATUS_NOK;
+    }
+}

@@ -1,0 +1,599 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 693dd64ba3486c6309d52353f7d12cc5, type: 3}
+  m_Name: GameData
+  m_EditorClassIdentifier: 
+  m_ghostFeatureEnabled: 0
+  m_turboChargePowerFactor: 2
+  m_buttonStyle:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Font: {fileID: 0}
+    m_FontSize: 0
+    m_FontStyle: 0
+    m_Alignment: 0
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 1
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 0, y: 0}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
+  m_particles: {fileID: 1927111293138826, guid: a8a5d276e9bcdf24badc364760261529, type: 3}
+  m_ballonParticles: {fileID: 1527615072648996, guid: 2a391a80de1848f44bbd9114caa2ae19, type: 3}
+  m_dustParticles: {fileID: 1746325529588758, guid: 7661e48309a90894ba7e4f9c02eb55a8, type: 3}
+  m_constructionParticles: {fileID: 1530068449377201, guid: fce0ce42d544aac4785d71ce8e57de81, type: 3}
+  m_constructionUIPrefab: {fileID: 4957296415102406, guid: 2c2db64da50402b4ebc85ef19082f27b, type: 3}
+  m_contraptionPrefab: {fileID: 4467921589148291, guid: 090fc040ee74c6d4bb5d6bed59e12629, type: 3}
+  m_blueprintPrefab: {fileID: 0}
+  m_hudPrefab: {fileID: 4115011367452261, guid: 59e29822b9ae91f4b8bd7db7a09dde6b, type: 3}
+  m_krakSprite: {fileID: 1663314687961500, guid: 2b2d2b0922857d3428487ab29f734c26, type: 3}
+  m_snapSprite: {fileID: 1857117463060091, guid: 5d56fca99443fa04a8c1e506b32da06b, type: 3}
+  m_screenDimmer: {fileID: 1572875398232910, guid: d308680b056930e469e00c2bd1464c7f, type: 3}
+  m_bangSprite: {fileID: 1746357776285786, guid: d606924825dae954c8d3070fa8deda01, type: 3}
+  m_glueSprite: {fileID: 1439351971749436, guid: d9d5cdf5827d81c4c86e05f77c241b9c, type: 3}
+  m_alienGlueSprite: {fileID: 1645357714004466, guid: 059520fb2909ef840a00d80a1853cf1c, type: 3}
+  m_superMagnetEffect: {fileID: 1024196705658792, guid: d7e2ef67a0a07df4f84e77006f5394cc, type: 3}
+  m_turboChargeEffect: {fileID: 1274105582125900, guid: 88b37ef3b75722f4b91d7679fa96482a, type: 3}
+  m_audioAmbience: {fileID: 0}
+  m_jointConnectionStrengthWeak: 125
+  m_jointConnectionStrengthNormal: 250
+  m_jointConnectionStrengthHigh: 600
+  m_jointConnectionStrengthExtreme: 900
+  m_jointConnectionStrengthHighlyExtreme: 1200
+  singletonSpawner: {fileID: 1210966225794884, guid: 9e422a57982fccd41bc4ccaf4ced639e, type: 3}
+  effectManager: {fileID: 1581015167403125, guid: d784518511ac07242b64ca0cca47810f, type: 3}
+  commonAudioCollection: {fileID: 11400000, guid: f5e1e68b99d6dbd4cab26c3d123992f9, type: 2}
+  m_partOrderList: {fileID: 4900000, guid: f0cd886f408557d40814a6c06fc38dbc, type: 3}
+  m_partReactionList: {fileID: 4900000, guid: 30c6f8cee79405d438c9ceb4011f9bf4, type: 3}
+  m_partAppearAnimation: {fileID: 7400000, guid: 358ae2ee32284544799fd4f1bf725865, type: 2}
+  m_partAppearBackground: {fileID: 1394826066505013, guid: 1674d5f0c307a704ea7a8c6b04ff7312, type: 3}
+  m_basicGoal: {fileID: 114485470446311852, guid: ea01476b6253d5b4f83a5e6cfc5eea6f, type: 3}
+  m_eggTransportGoal: {fileID: 114118593836926009, guid: 21683c8f7d778194ab6f2c6ed7c1a68f, type: 3}
+  m_pumpkinTransportGoal: {fileID: 114682146466175219, guid: d20b0126d6d82a14ba98b441c950b913, type: 3}
+  m_parts:
+  - {fileID: 1861957031590691, guid: 5bf18ec539045aa468bd69d97eb49785, type: 3}
+  - {fileID: 1755752131316582, guid: 72cc906c8ba1e404caa2027be1b27531, type: 3}
+  - {fileID: 1601330068570699, guid: c78bb9a73ccce384ebad9286283dd76f, type: 3}
+  - {fileID: 1759835784258323, guid: 9c36c716e4ba52d40ae3b0d970168799, type: 3}
+  - {fileID: 1803258236287564, guid: c8f46361ded0570488abd6ac62b7f06f, type: 3}
+  - {fileID: 1941236182404413, guid: 3c919b1d181752c4f9bf38e9fea2d5b5, type: 3}
+  - {fileID: 1757584505974496, guid: a94fdc32bdc8a094e9a7bbb674dd770e, type: 3}
+  - {fileID: 1498742947174225, guid: 6417e08b6ad6e164f9693b5295d1ec73, type: 3}
+  - {fileID: 1605393742961592, guid: ba0f1fcccb24fcf4d8842fab2516cb52, type: 3}
+  - {fileID: 1322164728156551, guid: 839047d1af376b942b9ac248540ab0f3, type: 3}
+  - {fileID: 1777855972265475, guid: 76d284615ac139c488731ab69689ffe1, type: 3}
+  - {fileID: 1748692004558728, guid: a9d6b0abdd8bda943ba1fbd6bb899e5b, type: 3}
+  - {fileID: 1029226688674089, guid: 6bfa1f1c445b8914e83ab50b45f5357d, type: 3}
+  - {fileID: 1462426130947435, guid: 41b626436143db943b7b18a3f8549b5d, type: 3}
+  - {fileID: 1902919803946948, guid: 44c70c50949a570458029d52cc6dbe05, type: 3}
+  - {fileID: 1148780540798946, guid: 214e91d67ad430c439b46ed697d59f37, type: 3}
+  - {fileID: 1386410604323480, guid: e43c72197d93e3343ae66bd96bbc141f, type: 3}
+  - {fileID: 1909196976104353, guid: acdf939ccfaaa5442adae6094b977932, type: 3}
+  - {fileID: 1238447214554215, guid: f999ff778ef0b854b8625ea712639024, type: 3}
+  - {fileID: 1545848724678810, guid: d9ffe116db290624e803fe167d063d1b, type: 3}
+  - {fileID: 1795539235372134, guid: 53bfc14b68226cd43b331836638e4227, type: 3}
+  - {fileID: 1165346474206255, guid: 7d3bf9c1f4a44eb4e8b648d70b3faada, type: 3}
+  - {fileID: 1058489837005225, guid: e150e669c38fca6438fb107b60b152c9, type: 3}
+  - {fileID: 1124012199320598, guid: 12ba26cfcceb45e4594c3817244f11fc, type: 3}
+  - {fileID: 1673389601716270, guid: cd748d5137cee0040a75ba0a323c1fb6, type: 3}
+  - {fileID: 1989851969293774, guid: 5327b7ea5fb849f44b9ca34ffb2cdc02, type: 3}
+  - {fileID: 1122926182723749, guid: 2445e9ff1548ba941ae921f2a929c0a8, type: 3}
+  - {fileID: 1202670990518789, guid: c241f3c2d8242d44c940290d6db5c344, type: 3}
+  - {fileID: 1853687023981970, guid: 39242bb637a4d874fac76e3a99874d92, type: 3}
+  - {fileID: 1043602824676665, guid: 723c1df8bdcbf454a9c7996882ee0f84, type: 3}
+  - {fileID: 1105687286519341, guid: 3e10bdebe2bf0d14d81afa55529d3ddc, type: 3}
+  - {fileID: 1608017781100547, guid: 04a24a6ca036ae7418a56e6b64a0d4b8, type: 3}
+  - {fileID: 1302347834217266, guid: b510749eb5bdb0a438b141caee32b29c, type: 3}
+  - {fileID: 1506170350729314, guid: b597e110573c7e74a92a4ceb45a60ada, type: 3}
+  - {fileID: 1044542189447232, guid: 1944d484a4f96ed4d83181488fc9063b, type: 3}
+  - {fileID: 1744753928804095, guid: e6871f6440e7d434e87e433e91b2f753, type: 3}
+  - {fileID: 1781513114120998, guid: c68ccca4c324e1641949ca20655fe42f, type: 3}
+  - {fileID: 1938007535988881, guid: a84cc961adb3e4c4c82e11a51ad15520, type: 3}
+  - {fileID: 1948172004026761, guid: c8083c1bcff97774b8ba1668b16da57a, type: 3}
+  - {fileID: 1903436849794152, guid: 8190a8f5b92bea9458cb435dc73f0bc2, type: 3}
+  - {fileID: 1508106722553419, guid: fae8f2def506dbc4aaab7b8fc47a228a, type: 3}
+  - {fileID: 1367358433234969, guid: 87108e98bfe6e6e4ea120e5dc73ff06c, type: 3}
+  - {fileID: 1661438960628475, guid: fe8ee44372a182c45bd5cd00afc050f3, type: 3}
+  - {fileID: 1270757001993425, guid: a5d4f36f10501fe4589cf8fec3469600, type: 3}
+  - {fileID: 1096738951977490, guid: aac092a45c345dd478b432edf2e9e89b, type: 3}
+  - {fileID: 1930032585199545, guid: a74ee491bca739347acef9821ef24b64, type: 3}
+  m_customParts:
+  - partType: 7
+    customParts:
+    - {fileID: 114085040295370345, guid: f6210ccab76c3da4a882d65dbe54b151, type: 3}
+    - {fileID: 114262231601813427, guid: 03e63b2fbd60bb649a2b6c0b57fff7d2, type: 3}
+    - {fileID: 114908622618627371, guid: 1097a1c14d1d74346b9458a71f855b28, type: 3}
+    - {fileID: 114556449585401120, guid: 43da5c3c87a76d8409f8bcc84976d6fe, type: 3}
+    - {fileID: 114899910734996801, guid: dd0e1ab2796b28642974595367c024c8, type: 3}
+    - {fileID: 114175980057298607, guid: 5d7f770eee2753c4d8043807836644aa, type: 3}
+    - {fileID: 114697693908128382, guid: 739743d34af694043a5fb2327b9fae6a, type: 3}
+    - {fileID: 114756710984770241, guid: 3b32a09e333246b42afb14384c82d0d9, type: 3}
+    - {fileID: 114908943517904933, guid: 34e3e74f43810974789164f399058198, type: 3}
+    - {fileID: 114128550708676451, guid: 17140fb76ba1c1647afab88ad39eba0a, type: 3}
+  - partType: 1
+    customParts:
+    - {fileID: 114724118872548025, guid: 6ef87fe2cb6c90f4b87362c71c5712a7, type: 3}
+    - {fileID: 114361416710632599, guid: 332856dd4debca940bc86fd5f36d7161, type: 3}
+    - {fileID: 114935934506753432, guid: 4dba49316d23b9f4495dcb7f15138881, type: 3}
+    - {fileID: 114022814782396407, guid: e695f61577a33c54886931b8adbc2ef1, type: 3}
+    - {fileID: 114457146473924800, guid: 7a3b258e42bc2304493c1c027e3d8115, type: 3}
+    - {fileID: 114532644083875820, guid: 49b64a1cd86264b49857f35079a0ebaa, type: 3}
+    - {fileID: 114874645679463564, guid: d27ce512640167a4bb49e398febb5c93, type: 3}
+  - partType: 2
+    customParts:
+    - {fileID: 114306464732791299, guid: 942da512a7df55d4496a932c7019fb73, type: 3}
+    - {fileID: 114602125164328281, guid: 087620832014ccf4da8014e08c79a8f1, type: 3}
+    - {fileID: 114358389576175435, guid: 9a343ce1bb8a187488c85d464b58f081, type: 3}
+    - {fileID: 114766796649019184, guid: 51bc47870ee07ee458ccd9ddac968192, type: 3}
+    - {fileID: 114936671212859615, guid: 8be14cef76b0b534e9b0c74e9866ba34, type: 3}
+    - {fileID: 114568481203555374, guid: 8cf90810fea90d540943df0c4facf827, type: 3}
+    - {fileID: 114005478914678332, guid: b5b9878f84c1d054c80236bd5969d080, type: 3}
+  - partType: 5
+    customParts:
+    - {fileID: 114805067010478533, guid: 682363d1ea29410498e830ed2eba6c3b, type: 3}
+    - {fileID: 114174987252406176, guid: efaee6a5278833f408e6a1e6ce3a49ad, type: 3}
+    - {fileID: 114429535374545013, guid: 3d64e01c4461e8b4b875c2925fd8416b, type: 3}
+    - {fileID: 114830526066103931, guid: bc47298808b2c1046b6409e56ca8690c, type: 3}
+    - {fileID: 114177540284659901, guid: 45cd716af2207ac4d8f2ce1e363f6dbd, type: 3}
+    - {fileID: 114397764111435599, guid: 8f0b95f4637fd524e971b74e05c0018e, type: 3}
+    - {fileID: 114883776216598565, guid: b4eaf411416448547af370d7f5f68104, type: 3}
+    - {fileID: 114208638687592437, guid: fab6d6e6cef9b45409b7fecc6df379e1, type: 3}
+    - {fileID: 114905883212505359, guid: 200dabf1830ab65418fc2e54746d61c3, type: 3}
+    - {fileID: 4236917249195766579, guid: 1676e2c088739544094dd07d885e7b10, type: 3}
+    - {fileID: 4236917249195766579, guid: 4231f3713361f504f98a64e14b0c014f, type: 3}
+  - partType: 4
+    customParts:
+    - {fileID: 114381493430809683, guid: da8a1a68f4698a64f86407a9e8beda84, type: 3}
+    - {fileID: 114603581422994875, guid: ae91221807eb84c49b8007ac4191b9f3, type: 3}
+    - {fileID: 114347910065904598, guid: f2227e8bf08c39b46b24fc9f08207b85, type: 3}
+    - {fileID: 114906809565720527, guid: d082458732de1734fb3c9d8328bbfe99, type: 3}
+    - {fileID: 114730806859200693, guid: b9166bdedf2c5654798deb3d29c9646e, type: 3}
+  - partType: 6
+    customParts:
+    - {fileID: 114374208987538504, guid: 9c9d261a38cc3e4498bd7515cf6f151c, type: 3}
+    - {fileID: 114688333832362152, guid: d232befa085846e45ad5d97a03068ab5, type: 3}
+    - {fileID: 114567083192626072, guid: d1afedae43b958a4ab6a1188cb3d4b5c, type: 3}
+    - {fileID: 114207483981404445, guid: 8742184d13b38524fa9d0469b43c2b8a, type: 3}
+    - {fileID: 114922994391656736, guid: 850fb0737cdeca748b693c8fbdf60450, type: 3}
+    - {fileID: 114600476113601118, guid: e8cde622df8e6a841a49fc400f76982d, type: 3}
+    - {fileID: 114017534246177208, guid: 07d18f3e2c50bea48ba0a8570c6816e6, type: 3}
+  - partType: 9
+    customParts:
+    - {fileID: 114378149350870567, guid: 9fdc4024837da6545971dc9b86a3a987, type: 3}
+    - {fileID: 114480639582646848, guid: 5c2e3c34621c0a249b88465b43cd1c6d, type: 3}
+    - {fileID: 114598784540219135, guid: efabf230597b25d4a91c07f2edab51c9, type: 3}
+    - {fileID: 114300276407014129, guid: a33617f01f0075b48a498d8014fda9fc, type: 3}
+    - {fileID: 114873939428957974, guid: e83f7549f42df004c9b217aeda2bf212, type: 3}
+  - partType: 11
+    customParts:
+    - {fileID: 114811046131978790, guid: a24e70c8948f9fb4ea4fe42fe3915658, type: 3}
+    - {fileID: 114997186065898960, guid: 3870296a62819024b8db32cb545f3322, type: 3}
+    - {fileID: 114881488664342873, guid: e5a4c79c3175aeb4abb57f04794b0e03, type: 3}
+  - partType: 12
+    customParts:
+    - {fileID: 114152396357422207, guid: 35df41298506ef8468b5019348ad483c, type: 3}
+    - {fileID: 114746061068535298, guid: 7fb32f0cb224a394bb0d37399c184187, type: 3}
+    - {fileID: 114440418567018501, guid: 07774cdb43eb9634a81c30855bc4720c, type: 3}
+  - partType: 13
+    customParts:
+    - {fileID: 114013254175823028, guid: 29d61dea5d4df0b489029b361da41d9d, type: 3}
+    - {fileID: 114832032336133724, guid: 963d7017f40ee374ca31ba5dca325c45, type: 3}
+    - {fileID: 114003464185852603, guid: 5a6333588f4ab6c4ca968535b0f61ce3, type: 3}
+    - {fileID: 114786508695244805, guid: 8ecc579e6a4af7d4ca4d5e5e0152d544, type: 3}
+    - {fileID: 114765516365628653, guid: 3e772aa7be208af42ba88d44be20cacf, type: 3}
+    - {fileID: 114905759750641642, guid: 6d35f4ebb6e825e44a576c1b44e934a7, type: 3}
+    - {fileID: 114877464196301815, guid: d36a4d6e7c1db684d92c366492079c2d, type: 3}
+    - {fileID: 114487358507096376, guid: db5594e5a0844f64a8794536f62267f3, type: 3}
+    - {fileID: 114785179652461170, guid: 24c29d9d76cd3084fa8bc891d8e4deb0, type: 3}
+    - {fileID: 114785179652461170, guid: 7dd82e019dfe4be4d8873e77967049a1, type: 3}
+  - partType: 14
+    customParts:
+    - {fileID: 114314030644057265, guid: 07ed797263d838a44a716797d999821c, type: 3}
+    - {fileID: 114738970418461122, guid: 0e8908881b560da47bcfe14f6b2a4f21, type: 3}
+    - {fileID: 114673288257974497, guid: c6e677f82c1fc104282b148fbdac3eea, type: 3}
+    - {fileID: 114119851209872551, guid: b4491cd43714ff644a5d2fb67797bb65, type: 3}
+  - partType: 15
+    customParts:
+    - {fileID: 114398622841691863, guid: 04ab33096b5e44344aa2196bcb5c2970, type: 3}
+    - {fileID: 114805943292990488, guid: d349fe85ce54fdb4abd1f5e7860c697f, type: 3}
+    - {fileID: 114390218933555394, guid: 5610b1ea7a79c1a43a24b693fd5088eb, type: 3}
+  - partType: 16
+    customParts:
+    - {fileID: 114539212089636937, guid: d825970238367594db5ce87d93310990, type: 3}
+    - {fileID: 114843985650092784, guid: 776815d507b1491498db7ea073c12c87, type: 3}
+    - {fileID: 114096119853651756, guid: cb92117527bd3a04aa433f6786adcb0a, type: 3}
+    - {fileID: 114593740816286730, guid: c3d8f77e8edf342419eb252956cf551f, type: 3}
+    - {fileID: 114567588086331929, guid: 29a48c784404454489ab4a126d0b38bd, type: 3}
+    - {fileID: 114119183819355917, guid: f678d9d338496f441bd407dded70d0a9, type: 3}
+    - {fileID: 114119183819355917, guid: 503264338ce0fdf49884a24cfbe5a814, type: 3}
+  - partType: 17
+    customParts:
+    - {fileID: 114467826736953213, guid: 9d723a7ce10d0224c9069a1a277cbaf9, type: 3}
+    - {fileID: 114020203229409502, guid: 3dc29e9fbdf8c0447ad5722e335e1088, type: 3}
+    - {fileID: 114774839396806613, guid: 77d39832058e0fd4bab8ca955497ede0, type: 3}
+  - partType: 18
+    customParts:
+    - {fileID: 114392862816582799, guid: 3ab64036ab5b1164d98725d40d86ea36, type: 3}
+    - {fileID: 114952947620032575, guid: 23590ddd344a47d45b1fd69d047adaf3, type: 3}
+    - {fileID: 114803745403827551, guid: 4b7d44dd885bf8846ac6cdd70d6214b0, type: 3}
+    - {fileID: 114415784110688650, guid: 21b5c30a854ff8c4288bd01e5d0edc2d, type: 3}
+    - {fileID: 114865900380344999, guid: 9d43caf9954d415409075cb5cece5f4b, type: 3}
+    - {fileID: 114856593567479728, guid: 6b08f2bcc154ac84c8a1b024acaed74f, type: 3}
+    - {fileID: 114184702415064814, guid: 0ae8a64c1ccc5564dbd4e42e8f359c96, type: 3}
+    - {fileID: 114045720714119278, guid: 0a72969407f78c0419a3a6c3a7c11d6f, type: 3}
+    - {fileID: 114872622340739413, guid: e818f662628f87343bc706266fd0ff46, type: 3}
+    - {fileID: 114643204620444008, guid: e8ca1ca5b4b0e0a419267a274c1b2af2, type: 3}
+    - {fileID: 114016007568446532, guid: c2dbeec8ada13444587fe1d227c8f526, type: 3}
+    - {fileID: 1791194212841923712, guid: 327c46acf0b3ca04cb4d6203bc657137, type: 3}
+    - {fileID: 114349524820397283, guid: cee2312753e809043a61655a88237db0, type: 3}
+    - {fileID: 114349524820397283, guid: 48a2a48eae4c60b4f884049cb0073ede, type: 3}
+  - partType: 19
+    customParts:
+    - {fileID: 114352109071923163, guid: 110689cc7e97d7f4c9aa7a818e832c16, type: 3}
+    - {fileID: 114432290978717002, guid: 161c5181492f3d3418ae5b93911509de, type: 3}
+    - {fileID: 114035752616205446, guid: b5361283cab6f1149a9ee6b3fef211a8, type: 3}
+    - {fileID: 114156397995144044, guid: b4d3dfe620a63c64daa27a4577a82eb8, type: 3}
+    - {fileID: 114776136800622045, guid: 27fae823d75507946a38666a2c1999e8, type: 3}
+    - {fileID: 114743085054466877, guid: a6e7112394106034d9de4df82ad89e79, type: 3}
+    - {fileID: 114827504817908592, guid: 76cc597bc8e7021439d48fc47eb2a454, type: 3}
+  - partType: 20
+    customParts:
+    - {fileID: 114284633335305294, guid: 688923d9097b52c4886d50c1463ad4c8, type: 3}
+    - {fileID: 114889709742890951, guid: 10f2c41ba56923b4f9c8f5a18f4f8f39, type: 3}
+    - {fileID: 114540902404481766, guid: c6daf91cf84912040a348870b66411f2, type: 3}
+  - partType: 21
+    customParts:
+    - {fileID: 114615894692437249, guid: a48d9806946a9ed4483959bafd8dba28, type: 3}
+    - {fileID: 114487523183197184, guid: 3f3b43f2a990b0e4aaa24b649b999156, type: 3}
+    - {fileID: 114949474947796122, guid: 476456571eea908438ea12ed8004fd32, type: 3}
+  - partType: 22
+    customParts:
+    - {fileID: 114839237495563537, guid: 7d60ebdb517121949af31cc97ce46e2e, type: 3}
+    - {fileID: 114773104770787088, guid: a3892a98211078741935d46eaa7e861d, type: 3}
+    - {fileID: 114983943506584091, guid: d6538e6ab39594a4ba0f4c30d3d1043a, type: 3}
+    - {fileID: 114019418971983152, guid: 9cc9f9c80048b474bb2407bbd6223809, type: 3}
+    - {fileID: 114878288845069473, guid: d7acaea6b3439654eb1e2011da055dee, type: 3}
+    - {fileID: 114647696617276017, guid: 540fb262ecedda74cab7d2054a3bf271, type: 3}
+    - {fileID: 114706002999023585, guid: 2da1c75927b47164a936e8faf016a599, type: 3}
+    - {fileID: 114804020432528704, guid: d235a1edc3e27704280f70fb972d928e, type: 3}
+    - {fileID: 114116597521648275, guid: 5ecec67b57d8a414aa5167951a353ea8, type: 3}
+  - partType: 23
+    customParts:
+    - {fileID: 114177939785099513, guid: 010bbe5b209293240a73a667bb5505a9, type: 3}
+    - {fileID: 114451264433843999, guid: 066c5ab76fb4a9d458f5b100ba309f51, type: 3}
+    - {fileID: 114504144127783150, guid: 7b0b71f644a4d504fa6acef43e52f04a, type: 3}
+    - {fileID: 114076544134362947, guid: f71a3c3b6f5891940a7cad8511fe7a26, type: 3}
+    - {fileID: 114246782014796335, guid: db099c54edef23d469a5541f5dc7f7c2, type: 3}
+    - {fileID: 114730074754953379, guid: 6a6994e0d11389d45a9b86fcb63f8450, type: 3}
+  - partType: 24
+    customParts:
+    - {fileID: 114553386818017602, guid: 7e7f6fbe06969ad45a5e59afaba7c8e1, type: 3}
+    - {fileID: 114419336033148291, guid: 25c59267bf311594887a7520313addca, type: 3}
+    - {fileID: 114678737171915234, guid: 4146db2120152714fbfebf4ea7ead83f, type: 3}
+    - {fileID: 114636809868257638, guid: 6bb89ef7090026240be765e3fbdaf711, type: 3}
+    - {fileID: 114187641515443439, guid: 280d9423a19efa94595f93eff72c6809, type: 3}
+    - {fileID: 114187641515443439, guid: 52269665e2a4de548b8b06dd357ac85d, type: 3}
+  - partType: 25
+    customParts:
+    - {fileID: 114746391285679735, guid: 811610dc86a334844b7d139a90aa448c, type: 3}
+    - {fileID: 114263540117451644, guid: 6c237802c217c0d468d1755597da3b1c, type: 3}
+    - {fileID: 114055275726617281, guid: 4d204e3dc9e955f4398e0bb33492119e, type: 3}
+    - {fileID: 114529779977345779, guid: d17728da280c5da4eac032374ee20742, type: 3}
+    - {fileID: 114961783820954553, guid: 905125dff278f4c4dae1b34be18e7152, type: 3}
+    - {fileID: 114631662088057406, guid: da0c4e2147758ac4e8a4519d65e2f22a, type: 3}
+    - {fileID: 114882794187792769, guid: ec970c0d64969b347826ae5940db6e3b, type: 3}
+    - {fileID: 114162014371653133, guid: 9a19e10649fda7e4eae015999312a7fc, type: 3}
+    - {fileID: 114831634515951285, guid: ac8401ba451125340afd4382cac5c209, type: 3}
+  - partType: 26
+    customParts:
+    - {fileID: 114223332421473685, guid: ad952464ad725704dae331428694f2e7, type: 3}
+    - {fileID: 114455258356181251, guid: 47dfbef9c1018914783776e3dd214dda, type: 3}
+    - {fileID: 114124212972250500, guid: fe75b7122ac7c0443b283a2d295c1dd6, type: 3}
+    - {fileID: 114348250387168318, guid: 77c27df004ffe62449a779ec55597946, type: 3}
+    - {fileID: 114201359165687157, guid: 00a5eb87690f8ab42b9503f84a679bd5, type: 3}
+    - {fileID: 114629044740881925, guid: bb4419f2001dfe94e81fad299b352250, type: 3}
+    - {fileID: 114629044740881925, guid: 63f873a484d06b2499f19f0130404a33, type: 3}
+  - partType: 27
+    customParts:
+    - {fileID: 114819126983215339, guid: 1e27636366798154f98559a1901cd5f8, type: 3}
+    - {fileID: 114754519851747358, guid: d1364f572d6d47b46b67799825442271, type: 3}
+    - {fileID: 114870554580711298, guid: 3630bb5936bd9fd43b04212a6b9af8cb, type: 3}
+    - {fileID: 114108686700913112, guid: 8d4bbfdc52959734796cc1ad3eab1293, type: 3}
+    - {fileID: 114444299777266121, guid: 53b651debc0244d42992670e3e067be3, type: 3}
+    - {fileID: 114806352751890877, guid: e97bd36c3dcc2d84f8f4109de4ea87a5, type: 3}
+  - partType: 28
+    customParts:
+    - {fileID: 114090898774283427, guid: 80c426b5d8a1e80458d716210166e354, type: 3}
+    - {fileID: 114336972467710309, guid: 53f424f6b0b37ea46be499e2daa8a0e6, type: 3}
+    - {fileID: 114711064812659702, guid: 16d24da16f29ebf4fa5b5d00337130fd, type: 3}
+    - {fileID: 114711064812659702, guid: dfe386ac69d2d3a438c4ce2734f60c70, type: 3}
+  - partType: 29
+    customParts:
+    - {fileID: 114510131010201354, guid: 0d624bd6da315ce4d9e44f0b174be826, type: 3}
+    - {fileID: 114037883108216827, guid: 232f0be89038f0d46900506fce0702a9, type: 3}
+    - {fileID: 114625234605475380, guid: 9a3156f68ceef6549aa1b0758c66a3d2, type: 3}
+    - {fileID: 114877822795327012, guid: bad814361de87bc4ca802ed92f27ae58, type: 3}
+    - {fileID: 114424692638272614, guid: 25589df36ab11534bbd666630c8d6e2b, type: 3}
+    - {fileID: 114050025183266022, guid: 4230cc513ff794740beb976276c99518, type: 3}
+  - partType: 30
+    customParts:
+    - {fileID: 114517797333084854, guid: e6a21e220c29bce418f64a5eb13067d6, type: 3}
+    - {fileID: 114928831559627698, guid: c757859fbaa1e194588f6cb142395804, type: 3}
+    - {fileID: 114011061075793865, guid: f5d76156b83b5974d95a0443c07cef19, type: 3}
+  - partType: 31
+    customParts:
+    - {fileID: 114753144968444474, guid: 7afc6edf523e22247ad32f4ffc4d2751, type: 3}
+    - {fileID: 114466340601166932, guid: e5c30bc63ec3f8c4ca0e606b03cf42c2, type: 3}
+    - {fileID: 114997000300096586, guid: e9cb06c8ac17eef43a8f510f48ddfb81, type: 3}
+    - {fileID: 114143087164310524, guid: d97dc7ab740c12e499cf611afd0aad05, type: 3}
+  - partType: 32
+    customParts:
+    - {fileID: 114780552033853169, guid: fd7809ba6c7d06a4292303e5803477d5, type: 3}
+    - {fileID: 114364566489316784, guid: d46945664ae5e2f40b963bec7bf22719, type: 3}
+    - {fileID: 114414762218241613, guid: 21d27e638c0515f4d8a59c1523883b4c, type: 3}
+    - {fileID: 114530935659259475, guid: ab0f8bcdf528143489141eaa7d0640f3, type: 3}
+    - {fileID: 114291325052255335, guid: 8c5e3f3abda772641a51cff5bf9ae806, type: 3}
+    - {fileID: 114488610757079729, guid: 924f621d6e579304e93ee395e8b99a24, type: 3}
+  - partType: 33
+    customParts:
+    - {fileID: 114593313296693534, guid: bc83214631e350e46a98d9b70a23c0c9, type: 3}
+    - {fileID: 114201369700785295, guid: 86acb6cba240ae840b5d831b6f45e3c7, type: 3}
+    - {fileID: 114321630660974572, guid: ce8136f90f9ff544f91b8487f0aa901d, type: 3}
+  - partType: 34
+    customParts:
+    - {fileID: 114074274378549326, guid: 162d4d01eb904bf4dbf479cb924bf647, type: 3}
+    - {fileID: 114551377259246030, guid: ae45e78aaffb2fc44947e68dc2d1e8c9, type: 3}
+    - {fileID: 114262941143580971, guid: 0377c1565a58c1a4891b04cf36f2f7a8, type: 3}
+    - {fileID: 114218840061671449, guid: 6bc2761cdf535ee47bd104f42f884c33, type: 3}
+  - partType: 35
+    customParts:
+    - {fileID: 114292331953887891, guid: ffd19ddf2ea1394478bbb40ead2343f4, type: 3}
+    - {fileID: 114004566287887126, guid: c57792788981a2144acdaaf7fc26d6e9, type: 3}
+    - {fileID: 114304146218331234, guid: 0ad89435faba32942884125872a10726, type: 3}
+  - partType: 36
+    customParts:
+    - {fileID: 114503790251470784, guid: d61d54469de63334d8e7210d69c03c17, type: 3}
+    - {fileID: 114786789018402130, guid: 3884d68275c966f48801910d3ef992f7, type: 3}
+    - {fileID: 114935850130738105, guid: 5a6e4421cfd50d64ebf973f1b624d6c9, type: 3}
+    - {fileID: 114564759018683996, guid: 0be3b3e9193d0834e8115c7e16b79d99, type: 3}
+    - {fileID: 114635508167608635, guid: 15e7f9af276f20445b9956f459414743, type: 3}
+  - partType: 39
+    customParts:
+    - {fileID: 114846416390586672, guid: 01a012d079e7cc6429403040f914fd25, type: 3}
+    - {fileID: 114554042110467750, guid: da14313ad9fed7a44bde015e49d3faa7, type: 3}
+    - {fileID: 114550102925168003, guid: 4af6f9b658eb1f145a6b6aa400b9d407, type: 3}
+    - {fileID: 114891846139976522, guid: c796b23b1c898974ba325a9464c06cd5, type: 3}
+    - {fileID: 6826701767423819487, guid: 694221c48a6f06f458aec0aa2f37db8c, type: 3}
+  - partType: 40
+    customParts:
+    - {fileID: 114039266089331230, guid: 2750d7b58a0d1d04dadbfef6e63b03a0, type: 3}
+    - {fileID: 114881521172047749, guid: 350274f703fee404082c78c2cd5128f1, type: 3}
+    - {fileID: 114630949721088028, guid: 016c737470c8da241b94ea5637972552, type: 3}
+    - {fileID: 114630949721088028, guid: 2efe1f2392a0fde46aa83d96f41cf8a8, type: 3}
+  - partType: 41
+    customParts:
+    - {fileID: 114324404860949098, guid: 3e9d94cc402045849a94195a1d381b41, type: 3}
+    - {fileID: 114345139536794876, guid: e3785b9a6c5233a4a91add2115ef64c0, type: 3}
+    - {fileID: 114238117579704400, guid: 58babc13f75337649920d7473cac1f63, type: 3}
+    - {fileID: 114199140809905275, guid: 7b7077586c8876c42bf2a2817db4f045, type: 3}
+    - {fileID: 114764878340195004, guid: 27ef7a6d64067fa4d9f7da80b78def10, type: 3}
+    - {fileID: 8110573671980163799, guid: c2a1611f0562b2b49bfab04c80a8630b, type: 3}
+    - {fileID: 114764878340195004, guid: 34368e6d8791e2040acf326c310d241e, type: 3}
+    - {fileID: 114764878340195004, guid: f2aace5d6d313ef48b5a3ae11b37d44b, type: 3}
+    - {fileID: -7783995915829798709, guid: 5bec5a348732fa64b8cda6ff659b747c, type: 3}
+  - partType: 43
+    customParts:
+    - {fileID: 114195981052248438, guid: c47d4b68795956c48bd29c91c44e2b94, type: 3}
+    - {fileID: 114122119718430442, guid: f3e11560ac839d2478aaf04707f9ce50, type: 3}
+    - {fileID: 114724995114060846, guid: 1cdc31e3faff6a54780a6a8cc9d4c7f3, type: 3}
+    - {fileID: 114238520481020775, guid: 7d626ffa23ad66540bf9da8117d68bb7, type: 3}
+  - partType: 44
+    customParts:
+    - {fileID: 114443372320560666, guid: 7b5a566bdf3b61a4ab8f525c7eb59281, type: 3}
+    - {fileID: 114513522903121457, guid: 8aac58c6750f1de4aa862371aa9673b0, type: 3}
+    - {fileID: 114931510226022930, guid: 554272c027eb2ec449a8f41327a44f78, type: 3}
+    - {fileID: 114073310976063039, guid: 4b6dac16d07df5d4ab9f026ba765e8e2, type: 3}
+    - {fileID: 114137848148208689, guid: df77af223b6fdbe428d87786fdb2e1e4, type: 3}
+  - partType: 45
+    customParts:
+    - {fileID: 114076767840900978, guid: 987c287f4c799e34fb1cbfc0be0440d1, type: 3}
+    - {fileID: 114879458358223628, guid: 578a3ab9d82a14b448e8b96a038be156, type: 3}
+    - {fileID: 114093789222399717, guid: 1eb0b53ad23c15f468a7e0260741ef9c, type: 3}
+  - partType: 46
+    customParts:
+    - {fileID: 114879095587409627, guid: 83c04453fcfe14f4891ca7be29260945, type: 3}
+    - {fileID: 114185732719708184, guid: c3fef07aac5b161408f91542e508c0c3, type: 3}
+    - {fileID: 114803079843049274, guid: ffef8820d964602498487cfcf8dead5c, type: 3}
+    - {fileID: 114110278455460803, guid: b8377cfdfa596e84a82833d6bf63e026, type: 3}
+    - {fileID: 2689731610518033077, guid: 49bbfb688d3506a4ea03dbc6cf17880b, type: 3}
+    - {fileID: 1791194212841921182, guid: 8b505ed067e67b14282a2acc31ce4801, type: 3}
+  - partType: 47
+    customParts:
+    - {fileID: 114788049636241713, guid: 1603dfa5aaf0cf745a840344cefa7f87, type: 3}
+    - {fileID: 114108077592674467, guid: 2c8cebad507e4414090aa4cdc8f1cdc0, type: 3}
+    - {fileID: 114114007605170193, guid: 92af10e2fa8a6484fa7fbf78669045e2, type: 3}
+  - partType: 3
+    customParts:
+    - {fileID: 114222771057975576, guid: 6a2ef5f9c8664074c94d8a8c50c91c6d, type: 3}
+    - {fileID: 114114779677533653, guid: 9bd13f7e06445dc498fc420409a2b385, type: 3}
+    - {fileID: 114663979827823749, guid: e5a17355604a305448941a5f0593f42b, type: 3}
+    - {fileID: 114778723415462285, guid: 20ac4ef4259f9af4c8ab3f5b246472d3, type: 3}
+    - {fileID: 114310234931632509, guid: 63a6f2a164101c442a799c89830b51ed, type: 3}
+    - {fileID: 114653727571339214, guid: f97918a3446edac4e97416e4896903cd, type: 3}
+    - {fileID: 114941733296431382, guid: 60c3bcda0e3e2304ea56a39605b8914f, type: 3}
+  - partType: 42
+    customParts:
+    - {fileID: 114473506070010886, guid: eaa317bee33c94a4ea39e33e3991dc6d, type: 3}
+  - partType: 10
+    customParts:
+    - {fileID: 114430928521527207, guid: 2b4084b74307bfc49a6171f6d967530f, type: 3}
+    - {fileID: 114029115734459713, guid: b71951bcecdbe2e49833911a75f5cd6a, type: 3}
+    - {fileID: 114999356582786169, guid: 3799440c23bd1ea43af50fbc49d24b20, type: 3}
+    - {fileID: 114859571876358577, guid: 8973be9fdc9f2504bbdfe9d60d8c37b2, type: 3}
+    - {fileID: 114497071416730941, guid: 756cea997e0ccf242b26843b1f58f4a0, type: 3}
+    - {fileID: 114986750061311922, guid: ca62b4489802da345a1e87c4a0065bbf, type: 3}
+    - {fileID: 114904245756330824, guid: 7dc06136610705c42af2fe31f15f9cb1, type: 3}
+    - {fileID: 114841461121282504, guid: 025278466b3053946955b5d88606147a, type: 3}
+    - {fileID: 114824688162410812, guid: 4c6adac24a2705b45bca5f3e37f64a36, type: 3}
+    - {fileID: 114399709855936831, guid: c667d2dd13009ef45985f5203bc36ede, type: 3}
+    - {fileID: 114064915424251061, guid: 5fed27bf5c86e3946bf7f9d9abbd9b74, type: 3}
+    - {fileID: 114255202748765615, guid: d16266ed95446dd45b5d5802e271490c, type: 3}
+    - {fileID: 114972967396655503, guid: c2916355bfc6c5f40bc53a9f7838ea34, type: 3}
+    - {fileID: 114681353070688505, guid: fa195624d61aeaf48bc1a82ed9b3b788, type: 3}
+    - {fileID: 114192848298372424, guid: 426978c6224bd0b46b25d1b56944d689, type: 3}
+    - {fileID: 114686994725987124, guid: 657c9ca7fd5ac524ab90d2f40f7292c6, type: 3}
+    - {fileID: 114765030964402733, guid: 610cdbed3985a16469f26970559612c1, type: 3}
+    - {fileID: 114005980815875249, guid: ec0753396896d9c4b8461bd593591f3a, type: 3}
+    - {fileID: 114109461541850044, guid: b3b7c2977641a564aa425d2f6c3dd9ba, type: 3}
+  - partType: 49
+    customParts:
+    - {fileID: 445477866284809951, guid: f8799e6024677744792415e09ed02282, type: 3}
+    - {fileID: 114849973470915591, guid: 5e251fc33f6f63042ac69f2d52d2d426, type: 3}
+    - {fileID: 1791194212841919917, guid: 1391e9bde125d044587da8af6c42da0d, type: 3}
+  m_episodeLevels:
+  - {fileID: 114863267608396748, guid: 7c1239181347ac14785f11970b12409a, type: 3}
+  - {fileID: 114778965027394414, guid: a66b4b06f8572fc40b3d79a02517362e, type: 3}
+  - {fileID: 114825237632020212, guid: 2aaca463e14961a49bff4849f259a274, type: 3}
+  - {fileID: 114622772487504094, guid: 3d3ba0c2e6a2c06499a5f5424edba6bc, type: 3}
+  - {fileID: 114903201107295086, guid: 22bfd9b22299e9c4a9ccaf3f3ba15d8c, type: 3}
+  - {fileID: 114268037516284859, guid: f0b6fe7c6d876e3418ba0ae40f8f0ec4, type: 3}
+  m_sandboxLevels: {fileID: 114120905831018256, guid: 003a467a01b61674093bda251ae0b361, type: 3}
+  m_raceLevels: {fileID: 114478081932570307, guid: 7e4470d1bb4dd684e923031ed1411e2f, type: 3}
+  m_desserts:
+  - {fileID: 1604292393150082, guid: e0fdceab132606e4fafda72a4ba56c14, type: 3}
+  - {fileID: 1413634233996878, guid: af4a370560e2b2a42bc1284ea968cc40, type: 3}
+  - {fileID: 1756448679784930, guid: 7a1b99ed2ff9d3846b301c0a9cfb1e14, type: 3}
+  - {fileID: 1237246868568180, guid: ff44f7f5114fd3146a1dc565b9d7dcbf, type: 3}
+  - {fileID: 1656729368007131, guid: d31a996d13dfa024fb8f7e05a538274b, type: 3}
+  - {fileID: 1753266698684387, guid: 27115448cec355b4c9feeea3527f1263, type: 3}
+  m_LevelDessertsCount: 3
+  m_BonusDessert: {fileID: 1756448679784930, guid: 7a1b99ed2ff9d3846b301c0a9cfb1e14, type: 3}
+  m_unlockLevelAdButtonPrefab: {fileID: 1168676164023476, guid: 214c127be3f2a5f468a8d3ada9ce0058, type: 3}
+  m_tooltipPrefab: {fileID: 1493218993272500, guid: b10c6754196bc5442bacdf0c75bb0374, type: 3}
+  m_levelUnlockDialog: {fileID: 1877134653043664, guid: 295752422de4cab44982ebb2fd240b99, type: 3}
+  m_sandboxUnlockDialog: {fileID: 1877134653043664, guid: 295752422de4cab44982ebb2fd240b99, type: 3}
+  m_specialSandboxUnlockDialog: {fileID: 1859452413534715, guid: e19da08f80c19024c963e922df1a8023, type: 3}
+  m_unlockPartTierDialog: {fileID: 1490032442273156, guid: 6567eb1042063c74a8659c5b64f16c48, type: 3}
+  m_genericButtonPrefab: {fileID: 1737012895403512, guid: ddd0dee2bbbfca84cb026c375064e716, type: 3}
+  m_levelRowUnlockPanel: {fileID: 1206300452852839, guid: 5710b5f25b116744bbadcb0385472600, type: 3}
+  m_lockedLevelRowPanel: {fileID: 1536517033053423, guid: a0de029a298017d4a8c2639bf38127f2, type: 3}
+  m_purchaseProductConfirmDialog: {fileID: 1873497940129063, guid: 23786406c9581194d8b688f911d69ae8, type: 3}
+  m_purchaseLootcrateConfirmDialog: {fileID: 1518106331645462, guid: 3ea2f7fc1e70d3343a73a9a5ee162a02, type: 3}
+  m_lpaUnlockDialog: {fileID: 1016456256921949, guid: cc9526125855afb4ab02119d7e3b6a5c, type: 3}
+  m_snoutCoinButtonPrefab: {fileID: 1308291496448510, guid: a16416208ae69214493191b159afb237, type: 3}
+  m_scrapButtonPrefab: {fileID: 1022343492130959, guid: c8dc43c7181274c46a3b32faf711c771, type: 3}
+  m_snoutCoinAdRewardDialog: {fileID: 1123322171499721, guid: ab21655b24b55ac40bea53ec4d9597a9, type: 3}
+  m_starCountInfoPrefab: {fileID: 1446864421071562, guid: ddfd35b3de7c34c4f97301220360eaf1, type: 3}
+  m_roadHogsUnlockDialog: {fileID: 1353700144528860, guid: fd51a3daa1445c74d8a1580f0345a906, type: 3}
+  m_starterPackDialog: {fileID: 1556183865719961, guid: 137514a425f95894ca6eb763dfd861c8, type: 3}
+  m_videoNotFoundDialog: {fileID: 1616165639648750, guid: 4f908edc6a8583d449737eab872ce84a, type: 3}
+  m_dailyChallengeDialog: {fileID: 1284968864372237, guid: 2838b8f20c5d0804db8d523958e39687, type: 3}
+  m_confirmationFailedDialog: {fileID: 1583726273250888, guid: 8571b1e7ce296194caf1f48c07e95056, type: 3}
+  m_customizePartUIPrefab: {fileID: 1385804008340154, guid: af4a50e9e48d9d3489f7b4e129a99cb9, type: 3}
+  m_getMoreScrapDialog: {fileID: 1368922828188144, guid: 00bf0034fb89a3642b11e7f0f5bc9ab4, type: 3}
+  m_notificationQueryDialog: {fileID: 1138231420423548, guid: 382b731f9cb2ca847881bea174fa6195, type: 3}
+  m_dailyChallengeData: {fileID: 11400000, guid: 71182d2e5694b7e4c924f9705e33e68a, type: 2}
+  m_lootCrates:
+  - {fileID: 1828114233743335, guid: 3d550e10293fe314da02bcfa6747ef0d, type: 3}
+  - {fileID: 1128575938712613, guid: 51ced924d17cbb344aab3db5fe3f7748, type: 3}
+  - {fileID: 1798268299184843, guid: e03cb1c26be617d449876a1b2bb808b0, type: 3}
+  - {fileID: 1311193205293436, guid: c64228418c6152b4390943aedcb61ea6, type: 3}
+  - {fileID: 1229634876963811, guid: 0c1142cd98329fb42bb68a55199d9ba9, type: 3}
+  - {fileID: 1567237015606598, guid: 6cc84bfc879f4cc4b9f56e09ea3e8e3a, type: 3}
+  - {fileID: 1757691516809217, guid: f699f4600bac77b439408c0c9c7f3e03, type: 3}
+  m_lootCrateLargeIcons:
+  - {fileID: 1649367342077819, guid: 924e2555f868b1740a177f0404e638b4, type: 3}
+  - {fileID: 1161637671911039, guid: 9ac9a7e384b5ec745a6133da3edb6f7d, type: 3}
+  - {fileID: 1998979398512015, guid: 900084d2205be13468ea3d0798faf461, type: 3}
+  - {fileID: 1982968795798081, guid: 0ee7212f31b6ac74e8985066efa81c39, type: 3}
+  - {fileID: 1297846178515066, guid: 01971534098f205458f52eefe644efd7, type: 3}
+  - {fileID: 1277092655426381, guid: 2843cc5e9fddd7448b96e2e771397760, type: 3}
+  - {fileID: 1424614495233102, guid: 0ff1acc552e469244b9004b706fa3a64, type: 3}
+  m_lootcrateOpenDialog: {fileID: 1502502882340162, guid: d2019184f7885b54e9087b091fe2313b, type: 3}
+  m_partListing: {fileID: 1968478010004061, guid: 9b58cd3ab94e67a4daa5c26afb89b0f1, type: 3}
+  m_workshopIntroduction: {fileID: 1755259141534394, guid: 144d77c0d05f0d048851709fc56a82fd, type: 3}
+  m_cakeRaceData: {fileID: 11400000, guid: e5c34b88d481bc54385ef9f91135d5a0, type: 2}
+  m_resourceBar: {fileID: 1074129686037041, guid: aebe5abeeb238e1499b51999d9d23fd9, type: 3}
+  m_cakeRaceLockedPopup: {fileID: 1429981715157131, guid: 52ed1861fcfb3214ab0459b8a49e0ca5, type: 3}
+  m_cakeRaceUnlockedPopup: {fileID: 1743240483495647, guid: c07c0bf1b85baf64a800559b7ad85412, type: 3}
+  m_saveToCloudPopup: {fileID: 1768030009512497, guid: 4e1895cbfe138b441b2b787184455540, type: 3}
+  m_disconnectCloudSavePopup: {fileID: 1229663702155421, guid: f05a48b2d434f514082f45b06ed6fff3, type: 3}
+  m_noFreeCrateSlotsPopup: {fileID: 1033266033846899, guid: 2b05a33d0990a9f4c84cd7586d08ebd0, type: 3}
+  m_superGlueIcon: {fileID: 1812949512209743, guid: ac3931525c68f0541be31a817740c54d, type: 3}
+  m_superMagnetIcon: {fileID: 1236441222865163, guid: 98d1f0cc79164454494c5fb9850096a5, type: 3}
+  m_superMechanicIcon: {fileID: 1958766629340387, guid: f33e52aa7c87137438fde3fee17ba5c4, type: 3}
+  m_nightVisionIcon: {fileID: 1633246476795316, guid: 2eeddacfb4201b446834278e33170f0b, type: 3}
+  m_turboChargeIcon: {fileID: 1216286939006401, guid: 2796a9b119eb1704691cff95d7dbdaee, type: 3}
+  m_tutorialPointer: {fileID: 1720554591326562, guid: 61605644128e51a4bace13603b4c8d77, type: 3}
+  m_tutorialPointerClick: {fileID: 1126762422958435, guid: 7c724db13417c6b4a8235decbdaa80d2, type: 3}
+  m_xpParticlesSmall: {fileID: 1389635087366863, guid: f25525aaa8bbe0f4d86e3cad3b6a965a, type: 3}
+  m_xpParticlesMedium: {fileID: 1167281330788787, guid: fb3481bbce8b7894cb52a9342ae1c041, type: 3}
+  m_xpParticlesLarge: {fileID: 1313605254232487, guid: ff1d43666129f9743bc2877fc5234b8a, type: 3}
+  m_lootCrateGraphicsSpawner: {fileID: 1039646921689327, guid: 0a138209c773eab4095d8b3df2770fc0, type: 3}
+  m_cakeRaceBombParticles: {fileID: 1161787261205135, guid: 9e8d8053c934d2f41a5106b5d09ef4c6, type: 3}
+  m_alienPartParticles: {fileID: 1588498499825206, guid: 988b26cf0705ddb4790aecc3d817410b, type: 3}
+  m_heartParticles: {fileID: 1518799162458646, guid: 254322b528f5bd945abc6a0c019dfed9, type: 3}
+  m_kingsFavoriteDialog: {fileID: 1719899081987144, guid: 891c8005e417dd94eb57df9f4a8843b7, type: 3}
