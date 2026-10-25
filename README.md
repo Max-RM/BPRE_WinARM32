@@ -13,7 +13,7 @@ never existed before this port**.
 
 | Target | System | Backend | Status |
 |---|---|---|---|
-| **UWP ARM32** | Windows 10 Mobile 10.0.15063+ and Windows 10/11 on ARM (ARM64 devices run it through ARM32 emulation) | IL2CPP | main target of this port |
+| **UWP ARM32** | Windows 10 Mobile 10.0.15063+ (Tested on HP Elite x3), Windows 10 ARM32 15035 (The leaked 32-bit desktop ARM build) and Windows 10/11 ARM64 (ARM64 devices run it through ARM32 backward compatibility) | IL2CPP | main target of this port |
 | UWP x64 | Windows 10/11 on x64 (desktop mode) | IL2CPP | works |
 | Windows x64 | Windows 7 SP1 / 8 / 8.1 / 10 / 11 (standalone, no sideloading) | Mono | works |
 | Windows x86 | 32-bit Windows 7 SP1 / 8 / 8.1 / 10 / 11 (standalone) | Mono | works; also the local test target for the 32-bit code path |
