@@ -8,6 +8,10 @@
 #   * Windows 10 version 1607 or newer (desktop), Windows 10 Mobile 10.0.15035 or newer
 #   * the .appx and .cer files of one architecture in the same folder as this script
 #   * Dependencies\Microsoft.VCLibs.<arch>.14.00.appx (shipped with the port)
+#
+# The script deliberately avoids Add-Type, System.IO.Compression and other .NET calls that
+# Windows 10 ARM32 build 15035 blocks in Constrained Language Mode: the package name is known,
+# and the version/architecture are read from the .appx file name instead of AppxManifest.xml.
 
 param(
     [switch]$NoLaunchPrompt,
@@ -16,6 +20,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+# Fixed identity of every package produced by this port (see Package.appxmanifest).
+$packageName = 'BadPiggiesRebooted'
 
 function Write-Step {
     param([string]$Text)
@@ -27,45 +34,36 @@ function Write-Ok    { param([string]$Text) Write-Host "  OK: $Text"         -Fo
 function Write-Warn2 { param([string]$Text) Write-Host "  WARNING: $Text"    -ForegroundColor Yellow }
 function Write-Err   { param([string]$Text) Write-Host "  ERROR: $Text"      -ForegroundColor Red }
 
-function Get-AppxIdentity {
-    param([string]$Path)
+function Get-PackageInfo {
+    param([string]$FileName)
 
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    $zip = [System.IO.Compression.ZipFile]::OpenRead($Path)
-    try {
-        $entry = $zip.Entries | Where-Object { $_.FullName -eq 'AppxManifest.xml' } | Select-Object -First 1
-        if (-not $entry) { return $null }
-        $reader = New-Object System.IO.StreamReader($entry.Open())
-        try { $text = $reader.ReadToEnd() } finally { $reader.Close() }
-
-        $name = $null
-        $version = $null
-        $arch = $null
-        if ($text -match '<Identity[^>]*Name="([^"]+)"')                  { $name    = $Matches[1] }
-        if ($text -match '<Identity[^>]*Version="([^"]+)"')               { $version = $Matches[1] }
-        if ($text -match '<Identity[^>]*ProcessorArchitecture="([^"]+)"') { $arch    = $Matches[1] }
-        return [pscustomobject]@{ Name = $name; Version = $version; Architecture = $arch }
-    } finally {
-        $zip.Dispose()
+    $version = ''
+    $architecture = ''
+    if ($FileName -match '_(\d+(?:\.\d+){1,3})_') { $version = $Matches[1] }
+    if ($FileName -match '_(\d+(?:\.\d+){1,3})_(x86|x64|ARM|ARM64)(?:[_.]|$)') {
+        $version = $Matches[1]
+        $architecture = $Matches[2]
     }
+
+    return @{ Name = $packageName; Version = $version; Architecture = $architecture }
 }
 
 function Show-HResultHint {
     param([string]$Message)
 
-    $hints = @{
-        '0x80073CF3' = 'A package dependency is missing or too old - keep the Dependencies folder next to the .appx.'
-        '0x80073CF0' = 'The package is invalid or damaged - download/copy it again.'
-        '0x80073CFB' = 'This (or a newer) version is already installed. Remove it first: Settings -> Apps -> Bad Piggies::Rebooted.'
-        '0x800B0109' = 'The certificate is not trusted - run Install.bat as administrator again.'
-        '0x800B010A' = 'The certificate chain could not be built - the .cer file does not match this .appx.'
-        '0x80073D02' = 'The package is in use. Close the game and try again.'
-        '0x80073D06' = 'A newer version of the package is already installed.'
-    }
+    $hints = @(
+        @('0x80073CF3', 'A package dependency is missing or too old - keep the Dependencies folder next to the .appx.'),
+        @('0x80073CF0', 'The package is invalid or damaged - download/copy it again.'),
+        @('0x80073CFB', 'This (or a newer) version is already installed. Remove it first: Settings -> Apps -> Bad Piggies::Rebooted.'),
+        @('0x800B0109', 'The certificate is not trusted - run Install.bat as administrator again.'),
+        @('0x800B010A', 'The certificate chain could not be built - the .cer file does not match this .appx.'),
+        @('0x80073D02', 'The package is in use. Close the game and try again.'),
+        @('0x80073D06', 'A newer version of the package is already installed.')
+    )
 
-    foreach ($code in $hints.Keys) {
-        if ($Message -match [regex]::Escape($code)) {
-            Write-Host "  Hint: $($hints[$code])" -ForegroundColor Yellow
+    foreach ($hint in $hints) {
+        if ($Message -like "*$($hint[0])*") {
+            Write-Host "  Hint: $($hint[1])" -ForegroundColor Yellow
         }
     }
 }
@@ -75,6 +73,7 @@ $exitCode = 0
 try {
     Write-Host 'Bad Piggies::Rebooted - UWP package installer'
     Write-Host "Folder: $here"
+    Write-Host "PowerShell language mode: $($ExecutionContext.SessionState.LanguageMode)"
 
     $packages = @(Get-ChildItem -LiteralPath $here -Filter '*.appx' -File -ErrorAction SilentlyContinue | Sort-Object Name)
     if ($packages.Count -eq 0) {
@@ -86,10 +85,10 @@ try {
     $package = $packages[0]
 
     $certificates = @(Get-ChildItem -LiteralPath $here -Filter '*.cer' -File -ErrorAction SilentlyContinue | Sort-Object Name)
-    $identity = Get-AppxIdentity -Path $package.FullName
+    $identity = Get-PackageInfo -FileName $package.Name
 
     Write-Host "Package: $($package.Name)"
-    if ($identity) {
+    if ($identity.Version -or $identity.Architecture) {
         Write-Host "  Name: $($identity.Name)  Version: $($identity.Version)  Architecture: $($identity.Architecture)"
     }
 
@@ -121,7 +120,8 @@ try {
             } catch {
                 # Already installed / newer version present is fine.
                 $message = $_.Exception.Message
-                if ($message -match '0x80073CFB|0x80073D06|already installed') {
+                if ($message -like '*0x80073CFB*' -or $message -like '*0x80073D06*' -or
+                    $message -like '*already installed*') {
                     Write-Ok "Dependency already present: $($dependency.Name)"
                 } else {
                     Write-Warn2 "Could not install $($dependency.Name): $message"
@@ -143,7 +143,7 @@ try {
         Write-Ok "Installed: $($identity.Name) $($identity.Version)"
     } catch {
         $message = $_.Exception.Message
-        if ($message -match '0x80073CFB|0x80073D06') {
+        if ($message -like '*0x80073CFB*' -or $message -like '*0x80073D06*') {
             Write-Ok 'This version is already installed - nothing to do.'
         } else {
             Write-Err $message
@@ -153,9 +153,9 @@ try {
     }
 
     $family = $null
-    if ($identity) {
-        $installed = Get-AppxPackage -Name $identity.Name | Sort-Object Version -Descending | Select-Object -First 1
-        if ($installed) { $family = $installed.PackageFamilyName }
+    $installed = Get-AppxPackage -Name $identity.Name -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($installed -and $installed.PackageFamilyName) {
+        $family = $installed.PackageFamilyName
     }
 
     if ($family -and -not $NoLaunchPrompt) {

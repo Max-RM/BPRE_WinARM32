@@ -31,6 +31,7 @@ Remove-Target -Path (Join-Path $BuildsRoot 'Win64')       -Label 'Win64 build'
 Remove-Target -Path (Join-Path $BuildsRoot 'Win32')       -Label 'Win32 build'
 Remove-Target -Path (Join-Path $BuildsRoot 'WSA')         -Label 'UWP ARM32 build'
 Remove-Target -Path (Join-Path $BuildsRoot 'WSA64')       -Label 'UWP x64 build'
+Remove-Target -Path (Join-Path $BuildsRoot 'WSA86')       -Label 'UWP x86 build'
 Remove-Target -Path (Join-Path $BuildsRoot 'obj')         -Label 'IL2CPP object cache'
 Remove-Target -Path $PublishRoot                          -Label 'Publish folder'
 

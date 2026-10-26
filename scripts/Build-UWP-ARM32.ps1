@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$UnityPath,
     [string]$MSBuildPath,
     [switch]$NoPublish,
@@ -19,15 +19,20 @@ try {
 
     Invoke-UnityBuild -Method 'BpReBuild.BuildWSA' -LogName 'uwp-arm32' -UnityPath $UnityPath
 
-    Write-Host "  Patching UWP splash (Unity output)..."
+    Write-Host "  Patching UWP splash and icon (Unity output)..."
     Set-UwpSplash -AssetsDir (Join-Path $unityOutput 'Assets') -ManifestPath (Join-Path $unityOutput 'Package.appxmanifest')
+    Set-UwpIcons -UnityOutput $unityOutput
+    Set-UwpCertificate -UnityOutput $unityOutput -ManifestPath (Join-Path $unityOutput 'Package.appxmanifest')
+    Set-UwpProjectSettings -UnityOutput $unityOutput
 
     Invoke-MSBuild -Solution $solution -Platform 'ARM' -MSBuildPath $MSBuildPath
 
     Sync-DataFolder -Source $srcData -Destination (Join-Path $armOutput 'Data')
 
-    Write-Host "  Patching UWP splash (loose output)..."
+    Write-Host "  Patching UWP splash and icon (loose output)..."
     Set-UwpSplash -AssetsDir (Join-Path $armOutput 'Assets') -ManifestPath (Join-Path $armOutput 'AppxManifest.xml')
+    Set-UwpIcons -UnityOutput $armOutput
+    Set-UwpCertificate -UnityOutput $armOutput -ManifestPath (Join-Path $armOutput 'AppxManifest.xml')
 
     Assert-Path -Path (Join-Path $armOutput 'GameAssembly.dll') -Label 'ARM GameAssembly.dll'
     Assert-Path -Path (Join-Path $armOutput 'Data\il2cpp_data\Metadata\global-metadata.dat') -Label 'ARM global-metadata.dat'

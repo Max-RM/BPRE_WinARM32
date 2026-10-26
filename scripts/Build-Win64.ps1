@@ -13,8 +13,7 @@ try {
     Assert-BuildPrerequisites -Unity -UnityPath $UnityPath
 
     $output = Join-Path $BuildsRoot 'Win64'
-    Reset-OutputFolder -Path $output -Label 'Win64'
-    Invoke-UnityBuild -Method 'BpReBuild.BuildWin64' -LogName 'win64' -UnityPath $UnityPath
+    Invoke-StandaloneBuild -Target Win64 -Method 'BpReBuild.BuildWin64' -LogName 'win64' -UnityPath $UnityPath
 
     Assert-Path -Path (Join-Path $output 'BadPiggiesRebooted.exe') -Label 'Win64 player'
     Assert-Path -Path (Join-Path $output 'BadPiggiesRebooted_Data\Managed\Assembly-CSharp.dll') -Label 'Win64 managed assembly'

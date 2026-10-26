@@ -68,11 +68,12 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 
 | Script | Purpose |
 |---|---|
-| `Build-Win64.ps1` | Windows x64 standalone (Mono) → `Builds\Win64` → `Publish\Win64` |
-| `Build-Win32.ps1` | Windows x86 standalone (Mono) → `Builds\Win32` → `Publish\Win32`; also the local test target for the 32-bit (ARM32) code path |
-| `Build-UwpX64.ps1` | UWP x64 (IL2CPP) → `Builds\WSA64` → `Publish\UWP-x64` |
-| `Build-UwpArm32.ps1` | UWP ARM32 (IL2CPP) → `Builds\WSA` → `Publish\UWP-ARM32` |
-| `Build-All.ps1` | All four targets, in order ARM32 → x64 → Win32 → Win64 |
+| `Build-Win64.ps1` | Windows x64 standalone (Mono) → `Builds\Win64` → `Publish\BPRE_Win64` |
+| `Build-Win32.ps1` | Windows x86 standalone (Mono) → `Builds\Win32` → `Publish\BPRE_Win32`; also the local test target for the 32-bit (ARM32) code path |
+| `Build-UWP-x64.ps1` | UWP x64 (IL2CPP) → `Builds\WSA64` → `Publish\BPRE_UWP-x64` |
+| `Build-UWP-x86.ps1` | UWP x86 (IL2CPP) → `Builds\WSA86` → `Publish\BPRE_UWP-x86` |
+| `Build-UWP-ARM32.ps1` | UWP ARM32 (IL2CPP) → `Builds\WSA` → `Publish\BPRE_UWP-ARM32` |
+| `Build-All.ps1` | All five targets, in order ARM32 → x64 → x86 → Win32 → Win64 |
 | `Clean-BuildOutput.ps1` | Removes builds, `Publish`, IL2CPP caches and logs; `-Deep` also removes `Library` |
 | `Package-Builds.ps1` | Packs the `Publish` folder into `Archives\*.zip` |
 | `Build-Common.ps1` | Shared helpers (paths, prerequisite checks, dialogs, Unity/MSBuild detection, Data sync, UWP splash, publishing) |
@@ -81,7 +82,7 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 
 ```powershell
 # one target
-.\scripts\Build-UwpX64.ps1
+.\scripts\Build-UWP-x64.ps1
 
 # everything
 .\scripts\Build-All.ps1
@@ -89,11 +90,14 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 # only some targets
 .\scripts\Build-All.ps1 -Targets uwp-arm32,uwp-x64
 
+# UWP x86 (32-bit package, mostly a test target)
+.\scripts\Build-UWP-x86.ps1
+
 # 32-bit standalone (also used to check the ARM32 splash locally)
 .\scripts\Build-Win32.ps1
 
 # build without copying the result into Publish
-.\scripts\Build-UwpArm32.ps1 -NoPublish
+.\scripts\Build-UWP-ARM32.ps1 -NoPublish
 
 # build without the "press any key" pause on errors
 .\scripts\Build-All.ps1 -NoPause
@@ -111,15 +115,24 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 ## What the UWP builds do
 
 1. Check the required components (see above).
-2. `Unity.exe -batchmode -executeMethod BpReBuild.BuildWSA64` (or `BuildWSA` for ARM32).
-3. Patch the UWP splash image (`BuildSupport\UWP\SplashScreen.scale-200.png`)
+2. `Unity.exe -batchmode -executeMethod BpReBuild.BuildWSA64` (or `BuildWSA86` / `BuildWSA` for x86 / ARM32).
+3. Patch the generated Unity project (`Set-UwpProjectSettings`): the freshly generated app
+   project asks for the Visual Studio 2019 UWP toolset (`v142`) and references the
+   `WindowsMobile` extension SDK, neither of which exists in a VS 2022 installation. The script
+   switches it to `v143` and drops the Windows Mobile reference, which is exactly the state of
+   the already working ARM/x64 projects. Unity only applies its template when the project folder
+   has to be created, so without this patch `Builds\WSA86` fails with `MSB8020`/`MSB3774`.
+4. Patch the UWP splash image (`BuildSupport\UWP\SplashScreen.scale-200.png`)
    and its background colour in `Package.appxmanifest`.
-4. Build the generated solution with MSBuild (`x64` or `ARM`, Release).
-5. Copy `Bad PiggiesRebooted\Data` next to the loose player (MSBuild does **not**
+5. Apply the game icon (`BuildSupport\UWP\Icons\*`) and the single signing certificate
+   (`BuildSupport\UWP\BPRE_UWP.pfx`, `CN=TNT ENTERTAINMENT Inc`), and set the same publisher in
+   the manifest, so every UWP package is signed by the same `BPRE_UWP.cer`.
+6. Build the generated solution with MSBuild (`x64`, `x86` or `ARM`, Release).
+7. Copy `Bad PiggiesRebooted\Data` next to the loose player (MSBuild does **not**
    do this, and a mismatch between `global-metadata.dat` and `GameAssembly.dll`
    crashes the player at startup).
-6. Patch the splash in the loose output (`AppxManifest.xml`).
-7. Copy the package into `Publish\` together with:
+8. Patch the splash and icon in the loose output (`AppxManifest.xml`).
+9. Copy the package into `Publish\` together with:
    - `Install.bat` + `Install.ps1` — automatic installer (UAC, certificate trust, VCLibs, game),
    - `README.txt` — installation instructions for desktop Windows, Windows on ARM and Windows 10 Mobile,
    - `Dependencies\Microsoft.VCLibs.<arch>.14.00.appx` — the runtime dependency required by the manifest.
@@ -131,13 +144,18 @@ Builds\Win64\BadPiggiesRebooted.exe
 Builds\Win32\BadPiggiesRebooted.exe
 Builds\WSA64\build\bin\x64\Release\            (loose UWP x64 player)
 Builds\WSA64\AppPackages\...\*_x64_Test\*.appx
+Builds\WSA86\build\bin\Win32\Release\          (loose UWP x86 player)
+Builds\WSA86\AppPackages\...\*_x86_Test\*.appx     (the package is renamed from the
+                                                    Unity project platform name "Win32"
+                                                    to x86 after MSBuild)
 Builds\WSA\build\bin\ARM\Release\              (UWP ARM32 player)
 Builds\WSA\AppPackages\...\*_ARM_Test\*.appx
 
-Publish\Win64\                                 full game folder
-Publish\Win32\                                 same, 32-bit player
-Publish\UWP-x64\                               *.appx, *.cer, Install.bat, Install.ps1, README.txt, Dependencies\
-Publish\UWP-ARM32\                             same, ARM32 package
+Publish\BPRE_Win64\                            full game folder
+Publish\BPRE_Win32\                            same, 32-bit player
+Publish\BPRE_UWP-x64\                          *.appx, *.cer, Install.bat, Install.ps1, README.txt, Dependencies\
+Publish\BPRE_UWP-x86\                          same, x86 package
+Publish\BPRE_UWP-ARM32\                        same, ARM32 package
 
 Archives\BPRE-<version>-*.zip
 ```
@@ -149,8 +167,8 @@ Archives\BPRE-<version>-*.zip
 - Every build removes its old output folder first (`Reset-OutputFolder`). Unity 2018 appends
   player data to an existing folder, and a second build into the same folder corrupts
   `resources.assets` (the game then crashes with `Position out of bounds!`).
-- Switching between Standalone (Win64) and UWP forces Unity to reimport scripts,
-  so a full four-target run takes noticeably longer than a single target.
+- Switching between Standalone and UWP forces Unity to reimport scripts,
+  so a full five-target run takes noticeably longer than a single target.
 - The 32-bit standalone (`Build-Win32.ps1`) uses the same 32-bit code path as the ARM32
   package (`System.IntPtr.Size == 4`, port splash, 16-bit-safe asset layout), so it is the
   quickest way to test ARM32-specific behaviour on a normal PC.
@@ -166,7 +184,9 @@ Archives\BPRE-<version>-*.zip
   serialized player data in `Library\PlayerDataCache`, and the reused copy is not always valid for
   the new target (a 32-bit player built that way dies at startup with
   `resources.assets is corrupted!`). Every build therefore clears that cache first, which costs a
-  few seconds and no reimport.
+  few seconds and no reimport. A standalone build that directly follows a UWP build can also
+  serialize the player data with stale script definitions; the scripts detect that
+  (`BPAssembly` marker in `resources.assets`) and automatically run the build a second time.
 - A loose UWP package can be registered for testing with:
   ```powershell
   Add-AppxPackage -Register "Builds\WSA64\build\bin\x64\Release\AppxManifest.xml"

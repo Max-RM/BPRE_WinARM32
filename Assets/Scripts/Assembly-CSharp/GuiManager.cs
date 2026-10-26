@@ -15,12 +15,15 @@ public class GuiManager : Singleton<GuiManager>
         public bool secondaryDown;
         public bool secondaryUp;
         public bool secondaryDragging;
+        public bool longPressActive;
         public bool doubleClick;
         public bool onWidget;
         public bool touchUsed;
         public int fingerId;
         public Widget widget;
         public Vector3 position;
+        public float pressStartTime;
+        public Vector3 pressStartPosition;
     }
 
     private class FocusData
@@ -169,9 +172,14 @@ public class GuiManager : Singleton<GuiManager>
         FocusData focusData = m_focusData[0];
         focusData.primary = true;
         PointerInput(0, touching: true, Input.GetMouseButtonDown(0), Input.GetMouseButtonUp(0), Input.GetMouseButton(0), Input.mousePosition, 0, focusData, m_pointers[0]);
-        m_pointers[0].secondaryDown = Input.GetMouseButtonDown(1);
-        m_pointers[0].secondaryUp = Input.GetMouseButtonUp(1);
-        m_pointers[0].secondaryDragging = Input.GetMouseButton(1);
+        // On a touch screen Unity also reports the touch as a mouse press. Do not overwrite the
+        // secondary (right-button) state that TouchInput derives from a long press.
+        if (Input.touchCount == 0)
+        {
+            m_pointers[0].secondaryDown = Input.GetMouseButtonDown(1);
+            m_pointers[0].secondaryUp = Input.GetMouseButtonUp(1);
+            m_pointers[0].secondaryDragging = Input.GetMouseButton(1);
+        }
         if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
         {
             m_touchCount = 1;
@@ -200,13 +208,56 @@ public class GuiManager : Singleton<GuiManager>
                 }
 
                 PointerInput(i, touching: true, touch.phase == TouchPhase.Began, flag, !flag, touch.position, touch.fingerId, focusData, m_pointers[i]);
+                UpdateTouchLongPress(i, touch.phase, flag, m_pointers[i]);
                 m_touchCount++;
             }
             else
             {
                 m_touchIds[i] = -1;
                 PointerInput(i, touching: false, pointerDown: false, pointerUp: false, dragging: false, Vector3.zero, -1, null, m_pointers[i]);
+                m_pointers[i].longPressActive = false;
+                m_pointers[i].secondaryDown = false;
+                m_pointers[i].secondaryUp = false;
+                m_pointers[i].secondaryDragging = false;
             }
+        }
+    }
+
+    // A long press on the building field works like the right mouse button on a PC: it enables
+    // the deletion mode, and dragging the still-pressed finger removes every part it touches.
+    private void UpdateTouchLongPress(int pointerIndex, TouchPhase phase, bool ended, Pointer pointer)
+    {
+        if (pointerIndex != 0)
+        {
+            pointer.secondaryDown = false;
+            pointer.secondaryUp = false;
+            pointer.secondaryDragging = false;
+            return;
+        }
+
+        if (phase == TouchPhase.Began)
+        {
+            pointer.pressStartTime = Time.time;
+            pointer.pressStartPosition = pointer.position;
+            pointer.longPressActive = false;
+        }
+
+        bool activateNow = false;
+        if (!pointer.longPressActive && !pointer.onWidget && !ended &&
+            (phase == TouchPhase.Stationary || phase == TouchPhase.Moved) &&
+            Time.time - pointer.pressStartTime >= 0.4f &&
+            (pointer.position - pointer.pressStartPosition).sqrMagnitude < 400f)
+        {
+            pointer.longPressActive = true;
+            activateNow = true;
+        }
+
+        pointer.secondaryDown = activateNow;
+        pointer.secondaryDragging = pointer.longPressActive && !ended;
+        pointer.secondaryUp = pointer.longPressActive && ended;
+        if (ended)
+        {
+            pointer.longPressActive = false;
         }
     }
 

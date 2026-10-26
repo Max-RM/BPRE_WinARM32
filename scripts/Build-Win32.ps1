@@ -16,8 +16,7 @@ try {
     Assert-BuildPrerequisites -Unity -UnityPath $UnityPath
 
     $output = Join-Path $BuildsRoot 'Win32'
-    Reset-OutputFolder -Path $output -Label 'Win32'
-    Invoke-UnityBuild -Method 'BpReBuild.BuildWin32' -LogName 'win32' -UnityPath $UnityPath
+    Invoke-StandaloneBuild -Target Win32 -Method 'BpReBuild.BuildWin32' -LogName 'win32' -UnityPath $UnityPath
 
     Assert-Path -Path (Join-Path $output 'BadPiggiesRebooted.exe') -Label 'Win32 player'
     Assert-Path -Path (Join-Path $output 'BadPiggiesRebooted_Data\Managed\Assembly-CSharp.dll') -Label 'Win32 managed assembly'

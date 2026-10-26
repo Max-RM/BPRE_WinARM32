@@ -1,12 +1,19 @@
 param(
-    [ValidateSet('win64', 'win32', 'uwp-x64', 'uwp-arm32')]
-    [string[]]$Items = @('win64', 'win32', 'uwp-x64', 'uwp-arm32'),
+    [string[]]$Items = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32'),
     [string]$Version,
     [string]$OutputDir
 )
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Build-Common.ps1')
+
+# Same comma handling as Build-All.ps1 (a `-File` invocation passes "a,b" as one string).
+$Items = @($Items | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+$knownItems = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32')
+$unknownItems = @($Items | Where-Object { $knownItems -notcontains $_ })
+if ($unknownItems.Count -gt 0) {
+    throw "Unknown item(s): $($unknownItems -join ', '). Valid items: $($knownItems -join ', ')"
+}
 
 if (-not $Version) {
     $projectSettings = Join-Path $ProjectRoot 'ProjectSettings\ProjectSettings.asset'
@@ -34,10 +41,11 @@ if ($SevenZip) {
 }
 
 $sources = @{
-    'win64'     = @{ Dir = (Join-Path $PublishRoot 'Win64');     Name = 'win64' }
-    'win32'     = @{ Dir = (Join-Path $PublishRoot 'Win32');     Name = 'win32' }
-    'uwp-x64'   = @{ Dir = (Join-Path $PublishRoot 'UWP-x64');   Name = 'uwp-x64' }
-    'uwp-arm32' = @{ Dir = (Join-Path $PublishRoot 'UWP-ARM32'); Name = 'uwp-arm32' }
+    'win64'     = @{ Dir = (Join-Path $PublishRoot 'BPRE_Win64');     Name = 'win64' }
+    'win32'     = @{ Dir = (Join-Path $PublishRoot 'BPRE_Win32');     Name = 'win32' }
+    'uwp-x64'   = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-x64');   Name = 'uwp-x64' }
+    'uwp-x86'   = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-x86');   Name = 'uwp-x86' }
+    'uwp-arm32' = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-ARM32'); Name = 'uwp-arm32' }
 }
 
 function New-Archive {

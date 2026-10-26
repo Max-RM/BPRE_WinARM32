@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$UnityPath,
     [string]$MSBuildPath,
     [switch]$NoPublish,
@@ -19,15 +19,20 @@ try {
 
     Invoke-UnityBuild -Method 'BpReBuild.BuildWSA64' -LogName 'uwp-x64' -UnityPath $UnityPath
 
-    Write-Host "  Patching UWP splash (Unity output)..."
+    Write-Host "  Patching UWP splash and icon (Unity output)..."
     Set-UwpSplash -AssetsDir (Join-Path $unityOutput 'Assets') -ManifestPath (Join-Path $unityOutput 'Package.appxmanifest')
+    Set-UwpIcons -UnityOutput $unityOutput
+    Set-UwpCertificate -UnityOutput $unityOutput -ManifestPath (Join-Path $unityOutput 'Package.appxmanifest')
+    Set-UwpProjectSettings -UnityOutput $unityOutput
 
     Invoke-MSBuild -Solution $solution -Platform 'x64' -MSBuildPath $MSBuildPath
 
     Sync-DataFolder -Source $srcData -Destination (Join-Path $looseOutput 'Data')
 
-    Write-Host "  Patching UWP splash (loose output)..."
+    Write-Host "  Patching UWP splash and icon (loose output)..."
     Set-UwpSplash -AssetsDir (Join-Path $looseOutput 'Assets') -ManifestPath (Join-Path $looseOutput 'AppxManifest.xml')
+    Set-UwpIcons -UnityOutput $looseOutput
+    Set-UwpCertificate -UnityOutput $looseOutput -ManifestPath (Join-Path $looseOutput 'AppxManifest.xml')
 
     Assert-Path -Path (Join-Path $looseOutput 'GameAssembly.dll') -Label 'x64 GameAssembly.dll'
     Assert-Path -Path (Join-Path $looseOutput 'Data\il2cpp_data\Metadata\global-metadata.dat') -Label 'x64 global-metadata.dat'

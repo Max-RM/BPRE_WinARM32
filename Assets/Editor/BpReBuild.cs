@@ -10,6 +10,7 @@ public static class BpReBuild
 	private const string Win64Output = "Builds/Win64/BadPiggiesRebooted.exe";
 	private const string WsaOutput = "Builds/WSA";
 	private const string WsaOutput64 = "Builds/WSA64";
+	private const string WsaOutput86 = "Builds/WSA86";
 
 	public static void BuildWin64()
 	{
@@ -39,6 +40,15 @@ public static class BpReBuild
 		SetEditorUserBuildSetting("wsaArchitecture", "x64");
 		SetEditorUserBuildSetting("wsaUWPBuildType", "D3D");
 		Build(BuildTargetGroup.WSA, BuildTarget.WSAPlayer, WsaOutput64);
+	}
+
+	public static void BuildWSA86()
+	{
+		PlayerSettings.SetScriptingBackend(BuildTargetGroup.WSA, ScriptingImplementation.IL2CPP);
+		SetEditorUserBuildSetting("wsaSDK", "UWP");
+		SetEditorUserBuildSetting("wsaArchitecture", "x86");
+		SetEditorUserBuildSetting("wsaUWPBuildType", "D3D");
+		Build(BuildTargetGroup.WSA, BuildTarget.WSAPlayer, WsaOutput86);
 	}
 
 	private static void Build(BuildTargetGroup group, BuildTarget target, string outputPath)

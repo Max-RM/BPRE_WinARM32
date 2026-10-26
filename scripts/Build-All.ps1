@@ -1,6 +1,5 @@
 param(
-    [ValidateSet('win64', 'win32', 'uwp-x64', 'uwp-arm32')]
-    [string[]]$Targets = @('uwp-arm32', 'uwp-x64', 'win32', 'win64'),
+    [string[]]$Targets = @('uwp-arm32', 'uwp-x64', 'uwp-x86', 'win32', 'win64'),
     [string]$UnityPath,
     [string]$MSBuildPath,
     [switch]$NoPublish,
@@ -10,11 +9,22 @@ param(
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Build-Common.ps1')
 
+# Accept both "-Targets win32,win64" and "-Targets win32 win64"; the first form arrives as a
+# single string when the script is started with `powershell -File`.
+$Targets = @($Targets | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+$knownTargets = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32')
+$unknownTargets = @($Targets | Where-Object { $knownTargets -notcontains $_ })
+if ($unknownTargets.Count -gt 0) {
+    throw "Unknown target(s): $($unknownTargets -join ', '). Valid targets: $($knownTargets -join ', ')"
+}
+if ($Targets.Count -eq 0) { throw 'No build target selected.' }
+
 $scripts = @{
     'win64'      = 'Build-Win64.ps1'
     'win32'      = 'Build-Win32.ps1'
-    'uwp-x64'    = 'Build-UwpX64.ps1'
-    'uwp-arm32'  = 'Build-UwpArm32.ps1'
+    'uwp-x64'    = 'Build-UWP-x64.ps1'
+    'uwp-x86'    = 'Build-UWP-x86.ps1'
+    'uwp-arm32'  = 'Build-UWP-ARM32.ps1'
 }
 
 Write-Step "Building: $($Targets -join ', ')"

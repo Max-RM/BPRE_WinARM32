@@ -15,6 +15,7 @@ never existed before this port**.
 |---|---|---|---|
 | **UWP ARM32** | Windows 10 Mobile 10.0.15063+ (Tested on HP Elite x3), Windows 10 ARM32 15035 (The leaked 32-bit desktop ARM build) and Windows 10/11 ARM64 (ARM64 devices run it through ARM32 backward compatibility) | IL2CPP | main target of this port |
 | UWP x64 | Windows 10/11 on x64 (desktop mode) | IL2CPP | works |
+| UWP x86 | 32-bit Windows 10/11 and the x86 test target | IL2CPP | works; useful as an extra 32-bit test build |
 | Windows x64 | Windows 7 SP1 / 8 / 8.1 / 10 / 11 (standalone, no sideloading) | Mono | works |
 | Windows x86 | 32-bit Windows 7 SP1 / 8 / 8.1 / 10 / 11 (standalone) | Mono | works; also the local test target for the 32-bit code path |
 
@@ -23,6 +24,13 @@ show a dedicated splash screen (`Assets/Resources/innovation/Innovation_Backgrou
 the porting credits; the x64 builds keep the original splash. All builds use the same Unity 2018.4 IL2CPP/Mono player code, so gameplay is
 identical — only the packaging and the rendering backend differ.
 
+### Surface RT and Surface 2
+
+Surface RT and Surface 2 are **not playable** with this build: their GPU/driver combination cannot run
+the Unity player correctly. External compatibility work is being developed separately in
+[Max-RM/Win32Craft_ARM](https://github.com/Max-RM/Win32Craft_ARM). It has already been proven to work
+in testing, but the fix is not published yet.
+
 ### Architecture of the port
 
 | Part | Notes |
@@ -30,6 +38,7 @@ identical — only the packaging and the rendering backend differ.
 | Unity project | Downgraded from 2021.3 to **2018.4.36f1** (the last version that still targets Windows 10 Mobile ARM32) |
 | UWP ARM32 | IL2CPP, MSVC ARM toolset, packaged as `.appx` with the ARM32 splash patch applied at runtime |
 | UWP x64 | IL2CPP, packaged as `.appx` (desktop devices) |
+| UWP x86 | IL2CPP, 32-bit package (test target for the 32-bit code path) |
 | Win64 | Mono standalone player, no package or certificate needed |
 | Win32 | 32-bit Mono standalone player; shares the 32-bit code path (`IntPtr.Size == 4`, ARM32 splash) with the ARM package |
 | UWP packaging | `Package.appxmanifest` + MSIX-style `.appx`, signed with a self-signed certificate (`*.cer`) |
@@ -84,16 +93,19 @@ script waits for a key press.
 All builds run from the command line, no need to open the Unity editor.
 
 ```powershell
-# UWP ARM32 (main target)  -> Builds\WSA      + Publish\UWP-ARM32
-.\scripts\Build-UwpArm32.ps1
+# UWP ARM32 (main target)  -> Builds\WSA      + Publish\BPRE_UWP-ARM32
+.\scripts\Build-UWP-ARM32.ps1
 
-# UWP x64                  -> Builds\WSA64    + Publish\UWP-x64
-.\scripts\Build-UwpX64.ps1
+# UWP x64                  -> Builds\WSA64    + Publish\BPRE_UWP-x64
+.\scripts\Build-UWP-x64.ps1
 
-# Windows x64 standalone   -> Builds\Win64    + Publish\Win64
+# UWP x86 (32-bit test target) -> Builds\WSA86 + Publish\BPRE_UWP-x86
+.\scripts\Build-UWP-x86.ps1
+
+# Windows x64 standalone   -> Builds\Win64    + Publish\BPRE_Win64
 .\scripts\Build-Win64.ps1
 
-# Windows x86 standalone   -> Builds\Win32    + Publish\Win32
+# Windows x86 standalone   -> Builds\Win32    + Publish\BPRE_Win32
 .\scripts\Build-Win32.ps1
 
 # everything, in one go
@@ -122,30 +134,31 @@ See [`scripts/README.md`](scripts/README.md) for the details of every script.
 ```
 Builds\                          intermediate build trees (not published, git-ignored)
 Publish\
-  Win64\                         the whole Windows x64 game folder
-  Win32\                         the same game for 32-bit Windows
-  UWP-x64\
+  BPRE_Win64\                    the whole Windows x64 game folder
+  BPRE_Win32\                    the same game for 32-bit Windows
+  BPRE_UWP-x64\
     Bad PiggiesRebooted_1.0.0.0_x64.appx
     Bad PiggiesRebooted_1.0.0.0_x64.cer
     Dependencies\Microsoft.VCLibs.x64.14.00.appx
     Install.bat / Install.ps1 / README.txt
-  UWP-ARM32\                     same set of files, ARM32 package + VCLibs.arm
+  BPRE_UWP-x86\                  same set of files, x86 package + VCLibs.x86
+  BPRE_UWP-ARM32\                same set of files, ARM32 package + VCLibs.arm
 Archives\                        optional zip files created by Package-Builds.ps1
 ```
 
 ### Windows x64 (standalone)
 
-Open `Publish\Win64\BadPiggiesRebooted.exe`. No installation, certificate or dependency is required.
+Open `Publish\BPRE_Win64\BadPiggiesRebooted.exe`. No installation, certificate or dependency is required.
 
 ### Windows x86 (standalone, 32-bit)
 
-Same as above with `Publish\Win32\BadPiggiesRebooted.exe`. This build runs on 32-bit Windows and is
+Same as above with `Publish\BPRE_Win32\BadPiggiesRebooted.exe`. This build runs on 32-bit Windows and is
 also the quickest way to see the ARM32 splash and behaviour on a normal PC, because it takes the same
 32-bit code path as the UWP ARM32 package.
 
 ### Desktop Windows 10 / 11 (UWP)
 
-1. Copy the whole `UWP-x64` folder (or `UWP-ARM32` on a Windows-on-ARM device) to the target machine.
+1. Copy the whole `BPRE_UWP-x64` folder (or `BPRE_UWP-ARM32` on a Windows-on-ARM device) to the target machine.
 2. Run **`Install.bat`** and confirm the administrator prompt.
 3. The script trusts the certificate, installs `Microsoft.VCLibs.140.00`, then the game, and offers to start it.
 
@@ -153,12 +166,21 @@ also the quickest way to see the ARM32 splash and behaviour on a normal PC, beca
 import the `.cer` into **Local Machine → Trusted People**, install `Dependencies\*.appx`, then the game `.appx`.
 `sideloading` (or Developer mode) must be enabled in Settings → Update & security → For developers.
 
+Every UWP package is signed with the same self-signed certificate, `CN=TNT ENTERTAINMENT Inc`, so the
+`.cer` from any of the three UWP folders trusts the x64, x86 and ARM32 packages alike.
+
+The ARM32 package also installs on the leaked **Windows 10 ARM32 desktop build 15035**. That build
+runs PowerShell in Constrained Language Mode, so `Install.ps1` deliberately avoids `Add-Type` and
+`System.IO.Compression`; the installer reads the version and architecture from the file name instead
+of the package manifest. If `Install.bat` still cannot start, run
+`powershell -ExecutionPolicy Bypass -File .\Install.ps1` as administrator.
+
 ### Windows 10 Mobile
 
 Windows 10 Mobile cannot run `Install.bat`, so the package is installed by hand:
 
 1. Enable **Developer mode** in Settings → Update & security → For developers.
-2. Copy the `UWP-ARM32` folder to the phone.
+2. Copy the `BPRE_UWP-ARM32` folder to the phone.
 3. Tap the `.cer` file and install it into **Trusted People** (or use the certificate import in CMD Injector).
 4. Deploy `Dependencies\Microsoft.VCLibs.arm.14.00.appx` with **CMD Injector**, then the game `.appx`.
    Alternatively use the **Device Portal** (`http://<phone-ip>:80` → Apps → Deploy), uploading the dependency
@@ -166,12 +188,12 @@ Windows 10 Mobile cannot run `Install.bat`, so the package is installed by hand:
 5. Launch **Bad Piggies::Rebooted** from the app list.
 
 The complete instructions, including error codes (`0x800B0109`, `0x80073CF3`, …) are in the `README.txt` that
-ships inside every `Publish\UWP-*` folder.
+ships inside every `Publish\BPRE_UWP-*` folder.
 
 ## Port notes
 
-- `Assets\Editor\BpReBuild.cs` contains the batch build entry points (`BuildWin64`, `BuildWSA`,
-  `BuildWSA64`) used by the scripts.
+- `Assets\Editor\BpReBuild.cs` contains the batch build entry points (`BuildWin64`, `BuildWin32`,
+  `BuildWSA`, `BuildWSA64`, `BuildWSA86`) used by the scripts.
 - MSBuild does not copy the Unity `Data` folder next to the loose UWP player, so the build scripts
   sync it manually. A `global-metadata.dat` that does not match `GameAssembly.dll` crashes the
   player at startup, so never mix folders from different builds.

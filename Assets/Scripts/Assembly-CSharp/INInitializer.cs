@@ -78,8 +78,9 @@ public class INInitializer : MonoBehaviour
         }
     }
 
-    // The Windows ARM32 build is the only 32-bit target of this port, so it shows a
-    // splash screen that credits the port instead of the original artwork.
+    // Every 32-bit target of this port (Windows x86 and UWP x86, plus the original UWP ARM32)
+    // shows a splash screen that credits the port instead of the original artwork; the 64-bit
+    // builds keep the original splash.
     private static void ApplyPortSplash(GameObject splash)
     {
         if (System.IntPtr.Size != 4)

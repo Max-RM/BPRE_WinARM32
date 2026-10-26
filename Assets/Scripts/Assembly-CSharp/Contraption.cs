@@ -1327,6 +1327,13 @@ public class Contraption : WPFMonoBehaviour
                 part2.SetEnabled(enabled: false);
             }
         }
+
+        // The engine icon must also start the engines themselves, not only the parts they power:
+        // an engine has powerConsumption == 0, so the loop above never touches it.
+        for (int i = 0; i < ConnectedComponents.Count; i++)
+        {
+            UpdateEngineStates(i);
+        }
     }
 
     public void TurnOffAllPoweredParts()
@@ -1373,6 +1380,9 @@ public class Contraption : WPFMonoBehaviour
                 m_parts[j].SetEnabled(enabled: false);
             }
         }
+
+        // Start/stop the engines of this component as well (see the parameterless overload).
+        UpdateEngineStates(connectedComponent);
 
         return num;
     }

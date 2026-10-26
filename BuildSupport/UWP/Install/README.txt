@@ -13,14 +13,20 @@ or Windows 11 device, including Windows 10 Mobile and Windows on ARM.
 
 The package architecture must match the device:
 
-  UWP-x64     ->  Windows 10/11 on x64 (Intel/AMD)
-  UWP-ARM32   ->  Windows 10/11 on ARM (ARM64 devices run it through
-                  ARM32 emulation) and Windows 10 Mobile
+  BPRE_UWP-x64     ->  Windows 10/11 on x64 (Intel/AMD)
+  BPRE_UWP-x86     ->  32-bit Windows 10/11 (and a test target for the other
+                      32-bit builds; most devices do not need it)
+  BPRE_UWP-ARM32   ->  Windows 10/11 on ARM (ARM64 devices run it through
+                      ARM32 emulation) and Windows 10 Mobile
 
-Never mix files from the two folders.
+Never mix files from different folders.
+
+Every package is signed by the same certificate, CN=TNT ENTERTAINMENT Inc.
 
 Minimum OS version: 10.0.15035 (Windows 10 Mobile build 15035+).
 Windows 10 Mobile 10.0.15063 (Creators Update) or newer is recommended.
+The ARM32 package also works on the leaked Windows 10 ARM32 desktop build
+15035 and on Windows 10/11 ARM64 through ARM32 backward compatibility.
 
 
 ------------------------------------------------------------------------
@@ -68,7 +74,7 @@ under Settings -> Update & security -> For developers.
 ------------------------------------------------------------------------
 
 The phone cannot run Install.bat, so the certificate and the package are
-installed separately. Use the ARM32 package (UWP-ARM32 folder).
+installed separately. Use the ARM32 package (BPRE_UWP-ARM32 folder).
 
 Prepare the phone:
 
@@ -111,7 +117,28 @@ Dependencies folder before the game.
 
 
 ------------------------------------------------------------------------
- 3. TROUBLESHOOTING
+ 3. WINDOWS 10 ARM32 DESKTOP BUILD 15035
+------------------------------------------------------------------------
+
+This early 32-bit ARM desktop build has PowerShell in Constrained Language
+Mode, so older installers that used Add-Type or System.IO.Compression fail
+with "Cannot add type. Definition of new types is not supported in this
+language mode." The Install.ps1 in this folder avoids those calls and works
+there. If Install.bat still refuses to start, open an administrator
+PowerShell window in this folder and run:
+
+  powershell -ExecutionPolicy Bypass -File .\Install.ps1
+
+The script imports the .cer, installs the VCLibs dependency and then the
+ARM32 package. You can also install everything manually:
+
+  certutil -addstore -f TrustedPeople Bad*ARM.cer
+  Add-AppxPackage -Path .\Dependencies\Microsoft.VCLibs.arm.14.00.appx
+  Add-AppxPackage -Path .\Bad*ARM.appx
+
+
+------------------------------------------------------------------------
+ 4. TROUBLESHOOTING
 ------------------------------------------------------------------------
 
 0x80073CF3  A dependency is missing or too old. Install the .appx from

@@ -13,6 +13,11 @@ $Script:BuildLogDir   = Join-Path $env:TEMP 'bpre-builds'
 $Script:PlayerDataCache = Join-Path $ProjectRoot 'Library\PlayerDataCache'
 $Script:UwpSplashPng  = Join-Path $ProjectRoot 'BuildSupport\UWP\SplashScreen.scale-200.png'
 $Script:UwpInstallDir = Join-Path $ProjectRoot 'BuildSupport\UWP\Install'
+$Script:UwpIconsDir   = Join-Path $ProjectRoot 'BuildSupport\UWP\Icons'
+$Script:UwpCertificatePfx      = Join-Path $ProjectRoot 'BuildSupport\UWP\BPRE_UWP.pfx'
+$Script:UwpCertificatePassword = 'bpre'
+$Script:UwpPublisher           = 'CN=TNT ENTERTAINMENT Inc'
+$Script:UwpPublisherDisplayName = 'TNT ENTERTAINMENT Inc'
 $Script:UwpSplashBg   = '#FFF6DD'
 $Script:WinSdkVersion = '10.0.19041.0'
 $Script:PreferredVcTools = '14.38.33130'
@@ -513,6 +518,58 @@ function Invoke-UnityBuild {
     Write-Ok "Unity build finished"
 }
 
+function Test-PlayerAssetsComplete {
+    param([Parameter(Mandatory = $true)][string]$AssetsPath)
+
+    # The REConsoleInterface MonoBehaviour exists only on non-UWP targets and is serialized with
+    # the managed references it uses at runtime ("BPAssembly", "BPProgram", "BPMain"). When Unity
+    # serializes the player data before it has recompiled the scripts for the new target (the usual
+    # situation right after a UWP build) the component is written as a 32-byte stub instead of a
+    # 136-byte record, and the player then dies at startup with
+    #   The file 'resources.assets' is corrupted! [Position out of bounds!]
+    # Those reversed strings are therefore a reliable marker that the build must be repeated.
+    if (-not (Test-Path -LiteralPath $AssetsPath)) { return $false }
+
+    $bytes = [System.IO.File]::ReadAllBytes($AssetsPath)
+    $text = [System.Text.Encoding]::ASCII.GetString($bytes)
+    return $text.Contains('BPAssembly')
+}
+
+function Invoke-StandaloneBuild {
+    param(
+        [Parameter(Mandatory = $true)][ValidateSet('Win32', 'Win64')][string]$Target,
+        [Parameter(Mandatory = $true)][string]$Method,
+        [Parameter(Mandatory = $true)][string]$LogName,
+        [string]$UnityPath
+    )
+
+    $output = Join-Path $BuildsRoot $Target
+    $assets = Join-Path $output 'BadPiggiesRebooted_Data\resources.assets'
+
+    # A standalone build that directly follows a UWP (or an opposite-architecture) build
+    # serializes the scenes with stale script definitions. The first pass still fixes that for
+    # the second one, because by then the scripts are compiled for this target.
+    for ($attempt = 1; $attempt -le 2; $attempt++) {
+        Reset-OutputFolder -Path $output -Label $Target
+        Invoke-UnityBuild -Method $Method -LogName $LogName -UnityPath $UnityPath
+
+        if (Test-PlayerAssetsComplete -AssetsPath $assets) {
+            if ($attempt -gt 1) {
+                Write-Ok "Second pass serialized the player data correctly"
+            }
+            return $output
+        }
+
+        if ($attempt -eq 1) {
+            Write-Warn "First pass wrote incomplete player data (the scripts were still compiled for the previous target)"
+            Write-Warn "Rebuilding once with a clean player data cache..."
+        }
+    }
+
+    throw "The $Target build still has incomplete player data after two passes. " +
+          "Close Unity, delete 'Library\PlayerDataCache' and run the build again."
+}
+
 function Reset-OutputFolder {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -525,6 +582,136 @@ function Reset-OutputFolder {
     if (Test-Path -LiteralPath $Path) {
         Write-Host "  Removing previous $Label output: $Path"
         Remove-Item -LiteralPath $Path -Recurse -Force
+    }
+}
+
+function Set-UwpIcons {
+    # Unity 2018 generates plain Unity default tile logos when Player Settings > UWP > Icons is
+    # empty. The app icon is the Rebooted logo (Assets\Texture2D\RELogo.png, also used for the
+    # standalone .exe), pre-rendered into the sizes and names Unity expects. Copying them into the
+    # generated project before MSBuild puts them into the .appx, so the Start menu, taskbar and
+    # Store listing all show the game icon instead of the Unity logo.
+    param([Parameter(Mandatory = $true)][string]$UnityOutput)
+
+    if (-not (Test-Path -LiteralPath $UwpIconsDir)) { return }
+    $assets = Join-Path $UnityOutput 'Assets'
+    if (-not (Test-Path -LiteralPath $assets)) { return }
+
+    foreach ($icon in Get-ChildItem -LiteralPath $UwpIconsDir -Filter '*.png' -File) {
+        Copy-Item -LiteralPath $icon.FullName -Destination (Join-Path $assets $icon.Name) -Force
+    }
+    Write-Ok "UWP app icons applied from $UwpIconsDir"
+}
+
+function Set-UwpCertificate {
+    # A single self-signed code-signing certificate (CN=TNT ENTERTAINMENT Inc) signs every UWP
+    # package, so the desktop, x86 and ARM32 releases all install with the same .cer. Unity
+    # regenerates its own WSATestCertificate.pfx for the current company name on every build, so
+    # the certificate and the manifest publisher are enforced here, after the Unity build and
+    # before MSBuild signs the package. The password is written into the generated .vcxproj by
+    # Set-UwpProjectSettings.
+    param(
+        [Parameter(Mandatory = $true)][string]$UnityOutput,
+        [Parameter(Mandatory = $true)][string]$ManifestPath
+    )
+
+    if (-not (Test-Path -LiteralPath $UwpCertificatePfx)) {
+        Write-Warn "UWP signing certificate not found, Unity's test certificate is used: $UwpCertificatePfx"
+        return
+    }
+
+    Copy-Item -LiteralPath $UwpCertificatePfx -Destination (Join-Path $UnityOutput 'WSATestCertificate.pfx') -Force
+
+    if (Test-Path -LiteralPath $ManifestPath) {
+        $manifest = [System.IO.File]::ReadAllText($ManifestPath)
+        $patched = [regex]::Replace($manifest, 'Publisher="CN=[^"]*"', ('Publisher="' + $UwpPublisher + '"'))
+        $patched = [regex]::Replace($patched, '<PublisherDisplayName>[^<]*</PublisherDisplayName>',
+            ('<PublisherDisplayName>' + [System.Security.SecurityElement]::Escape($UwpPublisherDisplayName) + '</PublisherDisplayName>'))
+        if ($patched -ne $manifest) {
+            $utf8 = New-Object System.Text.UTF8Encoding($false)
+            [System.IO.File]::WriteAllText((Resolve-Path -LiteralPath $ManifestPath), $patched, $utf8)
+            Write-Ok "UWP publisher set to $UwpPublisherDisplayName"
+        }
+    }
+}
+
+function Rename-UwpX86Package {
+    # Unity/MSBuild call the 32-bit UWP project platform "Win32", so the package and its folder
+    # come out as "..._Win32.appx" even though the manifest inside says ProcessorArchitecture
+    # "x86". Rename them to x86 so the UWP output cannot be mistaken for a desktop Win32 build.
+    param([Parameter(Mandatory = $true)][string]$PackagesRoot)
+
+    if (-not (Test-Path -LiteralPath $PackagesRoot)) { return }
+
+    $folders = @(Get-ChildItem -LiteralPath $PackagesRoot -Directory -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like '*_Win32_Test' })
+    foreach ($folder in $folders) {
+        foreach ($file in @(Get-ChildItem -LiteralPath $folder.FullName -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -like '*_Win32.*' })) {
+            $newName = $file.Name -replace '_Win32\.', '_x86.'
+            Rename-Item -LiteralPath $file.FullName -NewName $newName
+        }
+
+        # Add-AppDevPackage.ps1 finds the package by wildcard, but keep the text consistent.
+        $deployScript = Join-Path $folder.FullName 'Add-AppDevPackage.ps1'
+        if (Test-Path -LiteralPath $deployScript) {
+            $text = [System.IO.File]::ReadAllText($deployScript)
+            $patched = $text -replace '_Win32\.', '_x86.'
+            if ($patched -ne $text) {
+                $utf8 = New-Object System.Text.UTF8Encoding($false)
+                [System.IO.File]::WriteAllText($deployScript, $patched, $utf8)
+            }
+        }
+
+        $newFolder = $folder.Name -replace '_Win32_Test$', '_x86_Test'
+        $newFolderPath = Join-Path $folder.Parent.FullName $newFolder
+        if (Test-Path -LiteralPath $newFolderPath) {
+            Remove-Item -LiteralPath $newFolderPath -Recurse -Force
+        }
+        Rename-Item -LiteralPath $folder.FullName -NewName $newFolder
+        Write-Ok "UWP x86 package renamed: $newFolder"
+    }
+}
+
+function Set-UwpProjectSettings {
+    # Unity 2018 generates a slightly different UWP app project for the 32-bit ("Win32")
+    # platform, and because the Unity output folder is reused it is only generated once - so a
+    # newly added architecture inherits two settings that do not fit the installed toolchain:
+    #   * <PlatformToolset>v142</PlatformToolset> - Visual Studio 2022 has no UWP tools for v142
+    #     (error MSB8020), the ARM/x64 projects already use v143;
+    #   * <SDKReference Include="WindowsMobile, Version=10.0.26100.0" /> - the Windows Mobile
+    #     extension SDK is not installed (error MSB3774), and the ARM/x64 projects do not
+    #     reference it either.
+    # Patch every generated app project to the same state as the working ARM/x64 ones. The
+    # IL2CPP projects next to it keep their own settings.
+    param(
+        [Parameter(Mandatory = $true)][string]$UnityOutput,
+        [string]$Toolset = 'v143'
+    )
+
+    if (-not (Test-Path -LiteralPath $UnityOutput)) { return }
+
+    $projects = @(Get-ChildItem -LiteralPath $UnityOutput -Filter '*.vcxproj' -File -ErrorAction SilentlyContinue)
+    foreach ($project in $projects) {
+        $text = [System.IO.File]::ReadAllText($project.FullName)
+        $patched = [regex]::Replace($text, '<PlatformToolset>v\d+</PlatformToolset>',
+            "<PlatformToolset>$Toolset</PlatformToolset>")
+        $patched = [regex]::Replace($patched, '\s*<SDKReference Include="WindowsMobile, Version=[^"]*"\s*/>', '')
+
+        # The BPRE_UWP.pfx certificate is password-protected; MSBuild needs the password in the
+        # project next to the key file.
+        $passwordXml = "<PackageCertificatePassword>$UwpCertificatePassword</PackageCertificatePassword>"
+        if ($patched -match '<PackageCertificatePassword>') {
+            $patched = [regex]::Replace($patched, '<PackageCertificatePassword>[^<]*</PackageCertificatePassword>', $passwordXml)
+        } else {
+            $patched = $patched -replace '(<PackageCertificateKeyFile>[^<]*</PackageCertificateKeyFile>)', ('$1' + $passwordXml)
+        }
+
+        if ($patched -ne $text) {
+            $utf8 = New-Object System.Text.UTF8Encoding($false)
+            [System.IO.File]::WriteAllText($project.FullName, $patched, $utf8)
+            Write-Ok "UWP project settings patched ($Toolset, no WindowsMobile SDK reference, BPRE signing key): $($project.Name)"
+        }
     }
 }
 
@@ -641,7 +828,7 @@ function Publish-Standalone {
     )
 
     $source = Join-Path $BuildsRoot $Target
-    if (-not $Destination) { $Destination = Join-Path $PublishRoot $Target }
+    if (-not $Destination) { $Destination = Join-Path $PublishRoot "BPRE_$Target" }
 
     Copy-Tree -Source $source -Destination $Destination
     Write-Ok "$Target published: $Destination"
@@ -649,17 +836,17 @@ function Publish-Standalone {
 
 function Get-VcLibsAppxPath {
     # Microsoft.VCLibs.140.00 is a hard dependency of the generated appx manifest.
-    param([Parameter(Mandatory = $true)][ValidateSet('x64', 'ARM')][string]$Architecture)
+    param([Parameter(Mandatory = $true)][ValidateSet('x86', 'x64', 'ARM')][string]$Architecture)
 
     $roots = @(
         (Join-Path ${env:ProgramFiles(x86)} 'Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs\14.0\Appx\Retail'),
         (Join-Path $env:ProgramFiles 'Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs\14.0\Appx\Retail')
     )
 
-    $fileName = if ($Architecture -eq 'ARM') {
-        'Microsoft.VCLibs.arm.14.00.appx'
-    } else {
-        'Microsoft.VCLibs.x64.14.00.appx'
+    $fileName = switch ($Architecture) {
+        'ARM' { 'Microsoft.VCLibs.arm.14.00.appx' }
+        'x86' { 'Microsoft.VCLibs.x86.14.00.appx' }
+        default { 'Microsoft.VCLibs.x64.14.00.appx' }
     }
 
     foreach ($root in $roots) {
@@ -671,22 +858,37 @@ function Get-VcLibsAppxPath {
 
 function Publish-UwpAppx {
     param(
-        [Parameter(Mandatory = $true)][ValidateSet('x64', 'ARM')][string]$Architecture,
+        [Parameter(Mandatory = $true)][ValidateSet('x86', 'x64', 'ARM')][string]$Architecture,
         [string]$Destination
     )
 
-    if ($Architecture -eq 'ARM') {
-        $packagesRoot = Join-Path $BuildsRoot 'WSA\AppPackages'
-        $folderName   = 'UWP-ARM32'
-    } else {
-        $packagesRoot = Join-Path $BuildsRoot 'WSA64\AppPackages'
-        $folderName   = 'UWP-x64'
+    switch ($Architecture) {
+        'ARM' {
+            $packagesRoot = Join-Path $BuildsRoot 'WSA\AppPackages'
+            $folderName   = 'BPRE_UWP-ARM32'
+            $packageToken = 'ARM'
+        }
+        'x86' {
+            $packagesRoot = Join-Path $BuildsRoot 'WSA86\AppPackages'
+            $folderName   = 'BPRE_UWP-x86'
+            # The 32-bit package is renamed from _Win32 to _x86 after MSBuild.
+            $packageToken = 'x86'
+        }
+        default {
+            $packagesRoot = Join-Path $BuildsRoot 'WSA64\AppPackages'
+            $folderName   = 'BPRE_UWP-x64'
+            $packageToken = 'x64'
+        }
     }
     if (-not $Destination) { $Destination = Join-Path $PublishRoot $folderName }
 
-    $package = Get-LatestAppPackage -Root $packagesRoot -Architecture $Architecture
+    $package = Get-LatestAppPackage -Root $packagesRoot -Architecture $packageToken
+    if (-not $package -and $Architecture -eq 'x86') {
+        # Fallback for packages that were not renamed (_Win32 folder).
+        $package = Get-LatestAppPackage -Root $packagesRoot -Architecture 'Win32'
+    }
     if (-not $package) {
-        Write-Warn "no *_${Architecture}_Test package under $packagesRoot, nothing published"
+        Write-Warn "no *_${packageToken}_Test package under $packagesRoot, nothing published"
         return
     }
 
@@ -701,12 +903,19 @@ function Publish-UwpAppx {
     }
     New-Item -ItemType Directory -Force -Path $Destination | Out-Null
 
+    $published = @()
     foreach ($file in $files) {
-        Copy-Item -LiteralPath $file.FullName -Destination $Destination -Force
+        # MSBuild names the 32-bit package "..._Win32.appx" (the project platform), while the
+        # manifest inside declares ProcessorArchitecture="x86". Publish it under the x86 name
+        # so the three package folders look alike and the installer shows the right architecture.
+        $name = $file.Name
+        if ($Architecture -eq 'x86') { $name = $name -replace '_Win32\.', '_x86.' }
+        $target = Join-Path $Destination $name
+        Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+        $published += Get-Item -LiteralPath $target
     }
 
     # Installer (Install.bat / Install.ps1) and the end-user instructions.
-    $published = @($files)
     foreach ($name in @('Install.bat', 'Install.ps1', 'README.txt')) {
         $source = Join-Path $UwpInstallDir $name
         if (-not (Test-Path -LiteralPath $source)) {

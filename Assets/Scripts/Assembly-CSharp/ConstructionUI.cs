@@ -89,6 +89,9 @@ public class ConstructionUI : WPFMonoBehaviour
     private bool m_allowDragPlacement;
     private BasePart.PartType m_currentCustomizablePartType;
     private Vector3 m_pointerTime;
+    private bool m_deletionDragging;
+    private int m_lastDeletionX;
+    private int m_lastDeletionY;
     public List<PartDesc> PartDescriptors => m_partDescs;
     public bool DisableFunctionality { get; set; }
     public List<PartDesc> UnlockedParts => m_unlockedParts;
@@ -1127,6 +1130,12 @@ public class ConstructionUI : WPFMonoBehaviour
             }
         }
 
+        // A long press on a touch screen switches to deletion mode; it must not turn into a move.
+        if (pointer.secondaryDown)
+        {
+            m_dragStarted = false;
+        }
+
         if (pointer.up)
         {
             if (m_dragStarted && m_draggedElement == -1)
@@ -1156,7 +1165,7 @@ public class ConstructionUI : WPFMonoBehaviour
 
         float num = ((!m_useDragOffset) ? 10f : 20f);
 
-        if (m_dragStarted && m_draggedElement == -1 && Vector3.Distance(pointer.position, m_dragStartPosition) >= num)
+        if (m_dragStarted && m_draggedElement == -1 && !pointer.secondaryDragging && !pointer.secondaryDown && Vector3.Distance(pointer.position, m_dragStartPosition) >= num)
         {
             Vector3 vector3 = WPFMonoBehaviour.ScreenToZ0(m_dragStartPosition) - base.transform.position;
             int coordX2 = Mathf.RoundToInt(vector3.x);
@@ -1265,8 +1274,12 @@ public class ConstructionUI : WPFMonoBehaviour
                 SetDraggedElement(-1);
             }
         }
-        else if (m_selectedElement != -1 && m_draggedElement == -1 && !pointer.onWidget)
+        else if (m_selectedElement != -1 && m_draggedElement == -1 && !pointer.onWidget &&
+                 !pointer.secondaryDown && !pointer.secondaryDragging && !pointer.secondaryUp && !m_deletionDragging)
         {
+            // A long-press deletion must not place the selected part when the finger is lifted:
+            // secondaryUp is reported on the release frame, and m_deletionDragging is still set
+            // until the deletion block below resets it.
             PartDesc selectedPart = m_partDescs[m_selectedElement];
             Vector3 mousePos = WPFMonoBehaviour.ScreenToZ0(pointer.position) - base.transform.position;
             int newMouseX = Mathf.RoundToInt(mousePos.x);
@@ -1289,39 +1302,27 @@ public class ConstructionUI : WPFMonoBehaviour
             m_rightDragStartPosition = pointer.position;
         }
 
-        if (m_draggedElement == -1 && (m_pointerTime.y >= 0.4f || pointer.secondaryDown || (pointer.secondaryDragging && pointer.position != m_rightDragStartPosition && !pointer.dragging)))
+        if (m_draggedElement == -1 && (m_pointerTime.y >= 0.4f || pointer.secondaryDown || pointer.secondaryUp || (pointer.secondaryDragging && pointer.position != m_rightDragStartPosition && (!pointer.dragging || pointer.longPressActive))))
         {
             Vector3 vector7 = WPFMonoBehaviour.ScreenToZ0(pointer.position) - base.transform.position;
             int x2 = Mathf.RoundToInt(vector7.x);
             int y2 = Mathf.RoundToInt(vector7.y);
-            BasePart basePart8 = m_contraption.FindPartAt(x2, y2);
-            if ((bool)basePart8 && (bool)basePart8.enclosedPart)
+            // On a touch screen a long press enables deletion and the finger may travel across
+            // several cells per frame, so remove every part on the line from the previous cell.
+            if (pointer.secondaryDown || !m_deletionDragging)
             {
-                basePart8 = basePart8.enclosedPart;
+                m_lastDeletionX = x2;
+                m_lastDeletionY = y2;
+                m_deletionDragging = true;
             }
 
-            if ((bool)basePart8 && !basePart8.m_static)
-            {
-                BasePart basePart9 = m_contraption.RemovePartAt(x2, y2);
-                if ((bool)basePart9)
-                {
-                    EventManager.Send(new PartRemovedEvent(basePart9.m_partType, basePart9.transform.position));
-                    for (int j = 0; j < m_partDescs.Count; j++)
-                    {
-                        if (m_partDescs[j].part.m_partType == basePart9.m_partType)
-                        {
-                            PartDesc partDesc3 = m_partDescs[j];
-                            partDesc3.useCount--;
-                            EventManager.Send(new PartCountChanged(partDesc3.part.m_partType, partDesc3.CurrentCount));
-                            AddMove();
-                            break;
-                        }
-                    }
-
-                    UnityEngine.Object.Destroy(basePart9.gameObject);
-                    ContraptionPartChanged(x2, y2);
-                }
-            }
+            RemovePartsAlongLine(m_lastDeletionX, m_lastDeletionY, x2, y2);
+            m_lastDeletionX = x2;
+            m_lastDeletionY = y2;
+        }
+        else if (!pointer.secondaryDragging && !pointer.secondaryDown)
+        {
+            m_deletionDragging = false;
         }
 
         if (m_draggedElement == -1 && (bool)m_mouseOverCell)
@@ -1329,6 +1330,73 @@ public class ConstructionUI : WPFMonoBehaviour
             m_mouseOverCell.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             m_mouseOverCell = null;
         }
+    }
+
+    private void RemovePartsAlongLine(int x0, int y0, int x1, int y1)
+    {
+        int dx = Math.Abs(x1 - x0);
+        int dy = Math.Abs(y1 - y0);
+        int stepX = ((x0 < x1) ? 1 : -1);
+        int stepY = ((y0 < y1) ? 1 : -1);
+        int error = dx - dy;
+
+        while (true)
+        {
+            RemovePartAtCell(x0, y0);
+            if (x0 == x1 && y0 == y1)
+            {
+                break;
+            }
+
+            int error2 = 2 * error;
+            if (error2 > -dy)
+            {
+                error -= dy;
+                x0 += stepX;
+            }
+
+            if (error2 < dx)
+            {
+                error += dx;
+                y0 += stepY;
+            }
+        }
+    }
+
+    private void RemovePartAtCell(int x, int y)
+    {
+        BasePart basePart = m_contraption.FindPartAt(x, y);
+        if ((bool)basePart && (bool)basePart.enclosedPart)
+        {
+            basePart = basePart.enclosedPart;
+        }
+
+        if (!basePart || basePart.m_static)
+        {
+            return;
+        }
+
+        BasePart removedPart = m_contraption.RemovePartAt(x, y);
+        if (!removedPart)
+        {
+            return;
+        }
+
+        EventManager.Send(new PartRemovedEvent(removedPart.m_partType, removedPart.transform.position));
+        for (int i = 0; i < m_partDescs.Count; i++)
+        {
+            if (m_partDescs[i].part.m_partType == removedPart.m_partType)
+            {
+                PartDesc partDesc = m_partDescs[i];
+                partDesc.useCount--;
+                EventManager.Send(new PartCountChanged(partDesc.part.m_partType, partDesc.CurrentCount));
+                AddMove();
+                break;
+            }
+        }
+
+        UnityEngine.Object.Destroy(removedPart.gameObject);
+        ContraptionPartChanged(x, y);
     }
 
     private void PlotLine(int x0, int y0, int x1, int y1, PartDesc selectedPart, GuiManager.Pointer pointer)
