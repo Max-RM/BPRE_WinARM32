@@ -73,8 +73,9 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 | `Build-UWP-x64.ps1` | UWP x64 (IL2CPP) → `Builds\WSA64` → `Publish\BPRE_UWP-x64` |
 | `Build-UWP-x86.ps1` | UWP x86 (IL2CPP) → `Builds\WSA86` → `Publish\BPRE_UWP-x86` |
 | `Build-UWP-ARM32.ps1` | UWP ARM32 (IL2CPP) → `Builds\WSA` → `Publish\BPRE_UWP-ARM32` |
-| `Build-All.ps1` | All five targets, in order ARM32 → x64 → x86 → Win32 → Win64 |
-| `Clean-BuildOutput.ps1` | Removes builds, `Publish`, IL2CPP caches and logs; `-Deep` also removes `Library` |
+| `Build-UWP-ARM32-L9D3D11-RT-Fix.ps1` | ARM32 package with the Direct3D 9_1 shim for Surface RT/2: repacks `Publish\BPRE_UWP-ARM32` (builds it first when missing) → `Publish\BPRE_UWP-ARM32-L9D3D11` |
+| `Build-All.ps1` | All six targets, in order ARM32, ARM32 L9D3D11, x64, x86, Win32, Win64 |
+| `Clean-BuildOutput.ps1` | Removes builds, IL2CPP caches and logs, and empties `Publish` and `Archives` (both folders are kept); `-Deep` also removes `Library` |
 | `Package-Builds.ps1` | Packs the `Publish` folder into `Archives\*.zip` |
 | `Build-Common.ps1` | Shared helpers (paths, prerequisite checks, dialogs, Unity/MSBuild detection, Data sync, UWP splash, publishing) |
 
@@ -90,6 +91,9 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 # only some targets
 .\scripts\Build-All.ps1 -Targets uwp-arm32,uwp-x64
 
+# ARM32 package with the Direct3D 9_1 shim (reuses the ARM32 appx, no Unity build)
+.\scripts\Build-UWP-ARM32-L9D3D11-RT-Fix.ps1
+
 # UWP x86 (32-bit package, mostly a test target)
 .\scripts\Build-UWP-x86.ps1
 
@@ -102,7 +106,7 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 # build without the "press any key" pause on errors
 .\scripts\Build-All.ps1 -NoPause
 
-# clean build outputs (keeps the Unity Library cache)
+# clean build outputs (keeps the Unity Library cache; Publish and Archives are emptied)
 .\scripts\Clean-BuildOutput.ps1
 
 # full clean, including Library (next build reimports everything)
@@ -134,6 +138,9 @@ closing the window immediately (`-NoPause` disables the dialog and the wait, e.g
 8. Patch the splash and icon in the loose output (`AppxManifest.xml`).
 9. Copy the package into `Publish\` together with:
    - `Install.bat` + `Install.ps1` — automatic installer (UAC, certificate trust, VCLibs, game),
+   - `Open-Saves.bat` — opens the package's `LocalState` folder
+     (`%LOCALAPPDATA%\Packages\BadPiggiesRebooted_<hash>\LocalState`) so the saves can be
+     backed up before an uninstall; the certificate hash is looked up, not hard-coded,
    - `README.txt` — installation instructions for desktop Windows, Windows on ARM and Windows 10 Mobile,
    - `Dependencies\Microsoft.VCLibs.<arch>.14.00.appx` — the runtime dependency required by the manifest.
 
@@ -151,14 +158,21 @@ Builds\WSA86\AppPackages\...\*_x86_Test\*.appx     (the package is renamed from 
 Builds\WSA\build\bin\ARM\Release\              (UWP ARM32 player)
 Builds\WSA\AppPackages\...\*_ARM_Test\*.appx
 
-Publish\BPRE_Win64\                            full game folder
+Publish\BPRE_Win64\                            full game folder + Open-Saves.bat
 Publish\BPRE_Win32\                            same, 32-bit player
-Publish\BPRE_UWP-x64\                          *.appx, *.cer, Install.bat, Install.ps1, README.txt, Dependencies\
+Publish\BPRE_UWP-x64\                          Bad_PiggiesRebooted_<version>_x64.appx, *.cer, Install.bat, Install.ps1, Open-Saves.bat, README.txt, Dependencies\
 Publish\BPRE_UWP-x86\                          same, x86 package
-Publish\BPRE_UWP-ARM32\                        same, ARM32 package
+Publish\BPRE_UWP-ARM32\                        same, appx named ..._ARM32.appx
+Publish\BPRE_UWP-ARM32-L9D3D11\                ..._ARM32_TegraPatch.appx + the same helpers
 
-Archives\BPRE-<version>-*.zip
+Archives\BPRE-<version>-win64.zip, -win32.zip, -uwp-x64.zip, -uwp-x86.zip,
+         -uwp-ARM32.zip, -uwp-ARM32-TegraPatch.zip
 ```
+
+Package file names are normalised when they are published: spaces become underscores
+(`Bad PiggiesRebooted_...` -> `Bad_PiggiesRebooted_...`), MSBuild's `_Win32` becomes `_x86`,
+`_ARM` becomes `_ARM32`, and the Surface RT build becomes `_ARM32_TegraPatch`. The manifest and
+the signature inside are untouched by the rename - only the file name changes.
 
 ## Notes
 
@@ -192,3 +206,19 @@ Archives\BPRE-<version>-*.zip
   Add-AppxPackage -Register "Builds\WSA64\build\bin\x64\Release\AppxManifest.xml"
   ```
   Registering by folder path means a rebuild is picked up without re-registration.
+- Every published folder contains `Open-Saves.bat`, which opens that build's save folder in
+  Explorer so it can be copied by hand before an uninstall (removing a package or the game folder
+  deletes the progress). The script is architecture specific because the paths differ:
+  - UWP packages: `%LOCALAPPDATA%\Packages\BadPiggiesRebooted_<hash>\LocalState`, where the
+    certificate hash is looked up at run time (`x0xr9mv5edyrp` for this certificate, another
+    one - e.g. `...hj` - for a package signed with a different one, then any
+    `BadPiggiesRebooted_*` folder) (copied from `BuildSupport\UWP\Install\Open-Saves.bat`);
+  - Win32 / Win64: `%USERPROFILE%\AppData\LocalLow\<company>\<product>`, i.e.
+    `_Imaginary_\Bad Piggies__Rebooted` with the current `ProjectSettings.asset`. The publish step
+    writes the folder names into `BuildSupport\Win\Open-Saves.bat`, so renaming the company or
+    product keeps the script correct.
+- `Clean-BuildOutput.ps1` keeps the `Publish` and `Archives` folders and only removes what is inside
+  them (plus the build folders, logs and, with `-Deep`, `Library`), so shortcuts, Explorer windows and
+  the publish/archive paths stay valid. `-Archives` is still accepted for old command lines, but the
+  archives are cleaned either way; files that cannot be deleted (locked or in use) are reported
+  instead of being skipped silently.

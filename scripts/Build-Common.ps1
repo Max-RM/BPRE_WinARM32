@@ -821,6 +821,42 @@ function Get-LatestAppPackage {
         Select-Object -First 1
 }
 
+function Get-UnityPlayerFolderName {
+    # Application.persistentDataPath on Windows is
+    #   %USERPROFILE%\AppData\LocalLow\<company>\<product>
+    # and Unity replaces every character that is not allowed in a folder name with '_',
+    # so "<Imaginary>" becomes "_Imaginary_" and "Bad Piggies::Rebooted" becomes
+    # "Bad Piggies__Rebooted".
+    param([Parameter(Mandatory = $true)][string]$Name)
+
+    $sanitized = [regex]::Replace($Name, '[<>:"/\\|?*\x00-\x1F]', '_')
+    return $sanitized.TrimEnd('.', ' ')
+}
+
+function Get-StandaloneSavesFolder {
+    # The standalone player keeps Progress.dat and Settings.xml in
+    # %USERPROFILE%\AppData\LocalLow\<company>\<product>. Both names are read from
+    # ProjectSettings.asset instead of being hard-coded, so renaming the company or the
+    # product cannot make Open-Saves.bat open an empty folder. The result uses the
+    # target machine's %USERPROFILE%, not the build machine's one.
+    $settings = Join-Path $ProjectRoot 'ProjectSettings\ProjectSettings.asset'
+    $company = 'DefaultCompany'
+    $product = 'Bad PiggiesRebooted'
+
+    if (Test-Path -LiteralPath $settings) {
+        foreach ($line in [System.IO.File]::ReadAllLines($settings)) {
+            if ($line -match '^\s*companyName:\s*(\S.*)$') {
+                $company = $Matches[1].Trim()
+            } elseif ($line -match '^\s*productName:\s*(\S.*)$') {
+                $product = $Matches[1].Trim()
+            }
+        }
+    }
+
+    return '%USERPROFILE%\AppData\LocalLow\{0}\{1}' -f `
+        (Get-UnityPlayerFolderName -Name $company), (Get-UnityPlayerFolderName -Name $product)
+}
+
 function Publish-Standalone {
     param(
         [Parameter(Mandatory = $true)][ValidateSet('Win32', 'Win64')][string]$Target,
@@ -832,6 +868,22 @@ function Publish-Standalone {
 
     Copy-Tree -Source $source -Destination $Destination
     Write-Ok "$Target published: $Destination"
+
+    # Open-Saves.bat opens the standalone save folder. The UWP packages use a completely
+    # different path (LocalState inside the package), so they ship their own copy from
+    # BuildSupport\UWP\Install. Here the path is written into the template, because only
+    # the build knows the company and product names.
+    $template = Join-Path $ProjectRoot 'BuildSupport\Win\Open-Saves.bat'
+    if (-not (Test-Path -LiteralPath $template)) {
+        Write-Warn "Open-Saves.bat template not found, skipped: $template"
+        return
+    }
+
+    $savesFolder = Get-StandaloneSavesFolder
+    $script = [System.IO.File]::ReadAllText($template).Replace('@SAVES@', $savesFolder)
+    $ascii = New-Object System.Text.ASCIIEncoding
+    [System.IO.File]::WriteAllText((Join-Path $Destination 'Open-Saves.bat'), $script, $ascii)
+    Write-Ok "Open-Saves.bat added: $savesFolder"
 }
 
 function Get-VcLibsAppxPath {
@@ -910,13 +962,23 @@ function Publish-UwpAppx {
         # so the three package folders look alike and the installer shows the right architecture.
         $name = $file.Name
         if ($Architecture -eq 'x86') { $name = $name -replace '_Win32\.', '_x86.' }
+        # MSBuild names the ARM package "..._ARM.appx" (the manifest says
+        # ProcessorArchitecture="arm"). Publish it as "..._ARM32.appx" so the folder
+        # is not mistaken for the 64-bit ARM build and the name matches the target
+        # ("ARM32" everywhere else in this project).
+        if ($Architecture -eq 'ARM') { $name = $name -replace '_ARM\.', '_ARM32.' }
+        # Release file names carry no spaces: "Bad PiggiesRebooted_..." becomes
+        # "Bad_PiggiesRebooted_...", which survives every copy method (FAT32 cards, CMD
+        # Injector, old Explorer dialogs) and gives the L9 repack a clean source name.
+        $name = $name -replace '\s+', '_'
         $target = Join-Path $Destination $name
         Copy-Item -LiteralPath $file.FullName -Destination $target -Force
         $published += Get-Item -LiteralPath $target
     }
 
-    # Installer (Install.bat / Install.ps1) and the end-user instructions.
-    foreach ($name in @('Install.bat', 'Install.ps1', 'README.txt')) {
+    # Installer (Install.bat / Install.ps1), the save-folder helper and the end-user
+    # instructions.
+    foreach ($name in @('Install.bat', 'Install.ps1', 'Open-Saves.bat', 'README.txt')) {
         $source = Join-Path $UwpInstallDir $name
         if (-not (Test-Path -LiteralPath $source)) {
             Write-Warn "installer file not found, skipped: $source"

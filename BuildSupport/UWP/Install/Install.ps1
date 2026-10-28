@@ -40,7 +40,9 @@ function Get-PackageInfo {
     $version = ''
     $architecture = ''
     if ($FileName -match '_(\d+(?:\.\d+){1,3})_') { $version = $Matches[1] }
-    if ($FileName -match '_(\d+(?:\.\d+){1,3})_(x86|x64|ARM|ARM64)(?:[_.]|$)') {
+    # ARM32 is the published name (MSBuild writes _ARM); the Surface RT build adds
+    # _TegraPatch, which is matched by the [_.] terminator below.
+    if ($FileName -match '_(\d+(?:\.\d+){1,3})_(x86|x64|ARM64|ARM32|ARM)(?:[_.]|$)') {
         $version = $Matches[1]
         $architecture = $Matches[2]
     }
@@ -129,7 +131,9 @@ try {
             }
         }
     } else {
-        Write-Warn2 'No Dependencies folder found - the game needs Microsoft.VCLibs.140.00 to be installed already.'
+        # The L9D3D11 ARM32 package ships the Visual C++ runtime inside the appx and
+        # has no dependencies at all; the regular packages always bring this folder.
+        Write-Warn2 'No Dependencies folder - nothing to install first. Only the L9D3D11 package works without it.'
     }
 
     Write-Step 'Installing the game'

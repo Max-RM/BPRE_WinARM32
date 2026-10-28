@@ -1,5 +1,5 @@
 param(
-    [string[]]$Items = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32'),
+    [string[]]$Items = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32', 'uwp-arm32-l9d3d11'),
     [string]$Version,
     [string]$OutputDir
 )
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 # Same comma handling as Build-All.ps1 (a `-File` invocation passes "a,b" as one string).
 $Items = @($Items | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-$knownItems = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32')
+$knownItems = @('win64', 'win32', 'uwp-x64', 'uwp-x86', 'uwp-arm32', 'uwp-arm32-l9d3d11')
 $unknownItems = @($Items | Where-Object { $knownItems -notcontains $_ })
 if ($unknownItems.Count -gt 0) {
     throw "Unknown item(s): $($unknownItems -join ', '). Valid items: $($knownItems -join ', ')"
@@ -45,7 +45,8 @@ $sources = @{
     'win32'     = @{ Dir = (Join-Path $PublishRoot 'BPRE_Win32');     Name = 'win32' }
     'uwp-x64'   = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-x64');   Name = 'uwp-x64' }
     'uwp-x86'   = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-x86');   Name = 'uwp-x86' }
-    'uwp-arm32' = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-ARM32'); Name = 'uwp-arm32' }
+    'uwp-arm32' = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-ARM32'); Name = 'uwp-ARM32' }
+    'uwp-arm32-l9d3d11' = @{ Dir = (Join-Path $PublishRoot 'BPRE_UWP-ARM32-L9D3D11'); Name = 'uwp-ARM32-TegraPatch' }
 }
 
 function New-Archive {

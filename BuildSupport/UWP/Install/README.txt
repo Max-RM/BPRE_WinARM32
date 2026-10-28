@@ -5,11 +5,21 @@
 This folder contains everything needed to install the game on a Windows 10
 or Windows 11 device, including Windows 10 Mobile and Windows on ARM.
 
-  Bad PiggiesRebooted_1.0.0.0_<arch>.appx   the game itself
-  Bad PiggiesRebooted_1.0.0.0_<arch>.cer    the signing certificate
+  Bad_PiggiesRebooted_1.0.0.0_<arch>.appx   the game itself
+  Bad_PiggiesRebooted_1.0.0.0_<arch>.cer    the signing certificate
   Dependencies\Microsoft.VCLibs.<arch>.14.00.appx   required runtime
   Install.bat / Install.ps1                 automatic installer (desktop)
+  Open-Saves.bat                            opens the save folder (back up first)
   README.txt                                this file
+
+The ARM32 package is named ..._ARM32.appx (the manifest inside still says
+ProcessorArchitecture="arm"). The Surface RT / Surface 2 variant built by
+scripts\Build-UWP-ARM32-L9D3D11-RT-Fix.ps1 is named
+..._ARM32_TegraPatch.appx; it has the same identity, so it replaces this
+package and vice versa.
+
+File names use underscores instead of spaces so they survive every copy
+method (FAT32 cards, old Explorer dialogs, CMD Injector).
 
 The package architecture must match the device:
 
@@ -100,7 +110,7 @@ Install the game with CMD Injector:
   2. Deploy the dependency first:
      Dependencies\Microsoft.VCLibs.arm.14.00.appx
   3. Deploy the game:
-     Bad PiggiesRebooted_1.0.0.0_ARM.appx
+     Bad_PiggiesRebooted_1.0.0.0_ARM32.appx
   4. Launch "Bad Piggies::Rebooted" from the app list.
 
 Alternative without CMD Injector - Device Portal:
@@ -132,13 +142,40 @@ PowerShell window in this folder and run:
 The script imports the .cer, installs the VCLibs dependency and then the
 ARM32 package. You can also install everything manually:
 
-  certutil -addstore -f TrustedPeople Bad*ARM.cer
+  certutil -addstore -f TrustedPeople Bad*ARM32.cer
   Add-AppxPackage -Path .\Dependencies\Microsoft.VCLibs.arm.14.00.appx
-  Add-AppxPackage -Path .\Bad*ARM.appx
+  Add-AppxPackage -Path .\Bad*ARM32.appx
 
 
 ------------------------------------------------------------------------
- 4. TROUBLESHOOTING
+ 4. SAVES AND BACKUPS
+------------------------------------------------------------------------
+
+The game keeps its progress in the package's local state folder:
+
+  %LOCALAPPDATA%\Packages\BadPiggiesRebooted_<hash>\LocalState
+
+(Progress.dat, Progress.dat.bak, Settings.xml, playerprefs.dat and the
+contraptionsB folder). Removing or reinstalling the package deletes that
+folder, so back it up first.
+
+<hash> is the publisher part of the package family name and comes from the
+signing certificate: x0xr9mv5edyrp for this package, something else (for
+example ...hj) when the game was installed from a package signed with another
+certificate. Do not rely on the exact name - Open-Saves.bat looks the folder
+up: it tries the known name first, then any BadPiggiesRebooted_* folder.
+
+Double-click Open-Saves.bat - it opens the folder in Explorer so the files
+can be copied somewhere else (USB stick, OneDrive, another folder). It only
+opens the folder and never changes anything. Until the game has been started
+once the folder does not exist yet; the script then says so and opens the
+package folder (or %LOCALAPPDATA%\Packages when no package is installed).
+
+The logs are one level up from the saves, in TempState\ (UnityPlayer.log).
+
+
+------------------------------------------------------------------------
+ 5. TROUBLESHOOTING
 ------------------------------------------------------------------------
 
 0x80073CF3  A dependency is missing or too old. Install the .appx from
@@ -156,11 +193,11 @@ ARM32 package. You can also install everything manually:
             previous registration and try again.
 
 The game needs DirectX 11 feature level 10.0 or higher. Devices that only
-offer Direct3D 9.x (for example older ARM tablets) fall back to software
-rendering and will be slow - this is a limitation of the Unity 2018.4
-player, not of this package.
+offer Direct3D 9.x (for example Surface RT / Surface 2) cannot run this
+package; use the separate ARM32_TegraPatch build (folder
+BPRE_UWP-ARM32-L9D3D11), which adds a Direct3D 11 -> 9_1 layer.
 
-Logs: %LOCALAPPDATA%\Packages\BadPiggiesRebooted_x0xr9mv5edyrp\TempState\
+Logs: %LOCALAPPDATA%\Packages\BadPiggiesRebooted_<hash>\TempState\
 (UnityPlayer.log) on desktop; on the phone the same file is inside the
 package's local state folder.
 
